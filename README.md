@@ -2,6 +2,10 @@
 
 Aplicativo desktop para estimar dimensões e quantitativos de fossas sépticas, filtros anaeróbios, sumidouros e caixas de gordura. A aba Projeto reúne as vistas 3D, em planta e em corte, além do esquema de empuxo no sumidouro. O Memorial compara as dimensões mínimas calculadas com as adotadas.
 
+## Instalar no Windows
+
+[Baixar o instalador do DRE para Windows x64](https://github.com/regivaldsud/DRE/releases/latest). Abra o arquivo `.exe` para instalar o aplicativo e criar o atalho na Área de Trabalho.
+
 ## Projeto e gráficos
 
 O painel do DRE 6.7.0 adapta a navegação lateral, a trilha de seção e a busca por comandos do [Next Shadcn Dashboard Starter, de Kiranism](https://github.com/Kiranism/next-shadcn-dashboard-starter). Use **Ctrl+K** para abrir uma seção ou executar uma ação.
