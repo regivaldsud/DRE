@@ -1,6 +1,6 @@
 {
   "name": "dimensionamento-fossa-v6",
-  "version": "6.6.1",
+  "version": "6.7.0",
   "description": "DRE 6.0 - Dimensionamento de Fossa Septica, Filtro Anaerobio e Sumidouro - NBR 7229 / NBR 13969 / NBR 8160 / NBR 6118 (v6.0 - identidade visual nova, chamadas de desenho sem sobreposicao e revisao normativa: Tabela 3 completa por temperatura, caixa de gordura NBR 8160 corrigida, piso de 1000 L do filtro e afastamentos do item 6.1)",
   "author": "18 RC Mec",
   "main": "main.js",

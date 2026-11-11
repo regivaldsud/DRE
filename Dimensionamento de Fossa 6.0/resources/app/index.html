@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>DRE 6.6.1 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
+<title>DRE 6.7.0 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
 <style>
   /* =====================================================================
      DRE 6.0 — Sistema visual (design tokens)
@@ -134,108 +134,6 @@
   ::-webkit-scrollbar-thumb:hover{ background:var(--ink-faint); background-clip:content-box; }
 
   .wrap{ max-width:1280px; margin:0 auto; padding:26px 22px 64px; }
-
-  /* ---------- Cabeçalho ---------- */
-  .goldbar{
-    height:3px;
-    background:linear-gradient(90deg,#7C6115,#C9A23C 18%,#F6E4A6 50%,#C9A23C 82%,#7C6115);
-  }
-  .appheader{
-    background:
-      radial-gradient(900px 300px at 88% -60%, rgba(95,180,238,.30), transparent 70%),
-      linear-gradient(135deg,#08192A 0%,#0F3153 55%,#0B2743 100%);
-    color:#EAF2FA;
-    padding:15px 24px;
-    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
-    border-bottom:1px solid rgba(0,0,0,.35);
-    box-shadow:0 10px 30px -22px rgba(8,25,42,.9);
-  }
-  .appheader__brand{ display:flex; align-items:center; gap:15px; flex:1; min-width:280px; }
-  .brandmark{
-    width:46px; height:46px; flex:none; border-radius:12px;
-    display:grid; place-items:center;
-    background:linear-gradient(150deg,rgba(255,255,255,.20),rgba(255,255,255,.04));
-    border:1px solid rgba(255,255,255,.24);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 6px 16px -8px rgba(0,0,0,.7);
-  }
-  .brandmark svg{ width:26px; height:26px; display:block; }
-  .applogo{ width:46px; height:46px; flex:none; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.35); }
-  .appheader__eyebrow{
-    font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
-    color:#9FC4E2; margin:0 0 2px;
-  }
-  .appheader__title{
-    font-family:var(--font-ui); font-weight:700; font-size:clamp(17px,2vw,22px);
-    letter-spacing:-.015em; margin:0 0 2px; color:#fff;
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  }
-  .vtag{
-    font-family:var(--font-mono); font-size:10.5px; font-weight:700; letter-spacing:.08em;
-    color:#0B2743; background:linear-gradient(180deg,#F6E4A6,#C9A23C);
-    border-radius:var(--r-pill); padding:2px 9px; box-shadow:0 2px 6px -2px rgba(0,0,0,.6);
-  }
-  .appheader__sub{ margin:0; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:#9FC4E2; }
-  .appheader__right{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .appheader__clock{ text-align:right; font-family:var(--font-mono); color:#fff; line-height:1.25; padding-left:6px; }
-  .appheader__clock .time{ font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-  .appheader__clock .date{ font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; color:#9FC4E2; }
-  .hbtn{
-    border:1px solid rgba(255,255,255,.22);
-    background:rgba(255,255,255,.08);
-    color:#EAF2FA; border-radius:var(--r-sm);
-    padding:8px 12px; font-size:12px; font-weight:600; letter-spacing:.01em;
-    cursor:pointer; transition:background .15s, border-color .15s, transform .12s;
-  }
-  .hbtn:hover{ background:rgba(255,255,255,.17); border-color:rgba(255,255,255,.4); }
-  .hbtn:active{ transform:translateY(1px); }
-  .hbtn.primary{
-    background:linear-gradient(180deg,#2E8FD6,#14548C);
-    border-color:#2E8FD6; color:#fff; font-weight:700;
-    box-shadow:0 6px 14px -8px rgba(46,143,214,.9);
-  }
-  .hbtn.primary:hover{ filter:brightness(1.08); }
-  .hproject{
-    border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.08); color:#fff;
-    border-radius:var(--r-sm); padding:8px 10px; font-family:var(--font-mono); font-size:11.5px; max-width:210px;
-  }
-  .hproject option{ color:#101B27; }
-  .htheme{
-    border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.08); color:#fff;
-    border-radius:var(--r-pill); width:34px; height:34px; cursor:pointer; font-size:15px; line-height:1;
-    transition:background .15s;
-  }
-  .htheme:hover{ background:rgba(255,255,255,.18); }
-  .appbadge{
-    background:var(--good-wash); color:var(--good); border:1px solid var(--good);
-    border-radius:var(--r-pill); padding:4px 12px 4px 8px;
-    font-family:var(--font-mono); font-size:11px; font-weight:700;
-    display:inline-flex; align-items:center; gap:6px;
-  }
-  .appbadge__dot{ width:7px; height:7px; border-radius:50%; background:var(--good); flex:none; }
-
-  /* ---------- Abas ---------- */
-  .navbar{
-    position:sticky; top:0; z-index:40;
-    background:var(--surface);
-    border-bottom:1px solid var(--line);
-    padding:0 22px; margin:0 0 24px;
-    box-shadow:0 8px 20px -20px rgba(16,27,39,.7);
-  }
-  .tabnav{ display:flex; gap:4px; padding:9px 0; overflow-x:auto; scrollbar-width:none; max-width:1280px; margin:0 auto; }
-  .tabnav::-webkit-scrollbar{ display:none; }
-  .tabnav__btn{
-    border:1px solid transparent; background:transparent; color:var(--ink-soft);
-    border-radius:var(--r-pill); padding:9px 15px;
-    font-size:12.5px; font-weight:600; letter-spacing:.01em; white-space:nowrap;
-    cursor:pointer; transition:background .16s, color .16s, box-shadow .16s;
-  }
-  .tabnav__btn:hover:not([aria-selected="true"]){ background:var(--surface-2); color:var(--ink); }
-  .tabnav__btn[aria-selected="true"]{
-    background:linear-gradient(180deg,var(--accent-2),var(--accent));
-    color:#fff; font-weight:700;
-    box-shadow:0 8px 18px -10px rgba(20,84,140,.85);
-  }
-  .tabnav__btn:focus-visible{ outline:none; box-shadow:var(--ring); }
 
   /* ---------- Barra de ações ---------- */
   .toolbar{ display:flex; gap:8px; align-items:center; }
@@ -742,10 +640,6 @@
     background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-md);
   }
   @media screen{
-    .appheader{ padding:9px 20px; gap:12px; }
-    .appheader__brand{ gap:10px; }
-    .brandmark{ width:38px; height:38px; }
-    .appheader__clock .time{ font-size:16px; }
     .wrap{ padding:14px 18px 24px; }
     .wrap > .toolbar{ margin-bottom:12px; }
     .wrap .panel + .panel{ margin-top:12px; }
@@ -918,7 +812,7 @@
     .navbar, .toolbar, #printBtn, #previewBtn, .contrib__remove, #addContribBtn,
     .stepper button, .radiorow, .switch, .tabnav, .appheader__right{ display:none !important; }
     .appheader{ background:#fff !important; color:#111 !important; border-bottom:2px solid #999; box-shadow:none; }
-    .appheader__title, .appheader__eyebrow, .appheader__sub{ color:#111 !important; }
+    .dashboard-print-title{ font-size:16px; margin:0 0 5px; }
     .brandmark{ border-color:#999; background:#fff; box-shadow:none; }
     .vtag{ background:#eee; color:#111; }
     .grid{ display:block !important; }
@@ -936,29 +830,33 @@
     *, *::before, *::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
   }
 </style>
+<link rel="stylesheet" href="dashboard.css">
 
-<div class="goldbar"></div>
-<header class="appheader">
-  <div class="appheader__brand">
-    <div class="brandmark" aria-hidden="true">
-      <svg viewBox="0 0 32 32" fill="none" stroke="#EAF2FA" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2.5" y="10" width="9.5" height="13" rx="1.6"/>
-        <path d="M2.5 15.5h9.5" stroke-dasharray="2 1.6" opacity=".8"/>
-        <rect x="14.5" y="13" width="7.5" height="10" rx="1.6"/>
-        <circle cx="16.6" cy="16" r=".9" fill="#EAF2FA" stroke="none"/>
-        <circle cx="19.6" cy="18.4" r=".9" fill="#EAF2FA" stroke="none"/>
-        <circle cx="17" cy="20.6" r=".9" fill="#EAF2FA" stroke="none"/>
-        <rect x="24.5" y="13" width="5.5" height="10" rx="1.6" stroke-dasharray="2.4 2"/>
-        <path d="M27.2 24.4v3.2M25.6 26.4l1.6 1.8 1.6-1.8"/>
-        <path d="M7.2 6.5v3.2M12 20h2.5M22 17h2.2"/>
-      </svg>
-    </div>
-    <div>
-      <p class="appheader__eyebrow">ENGENHARIA SANITÁRIA</p>
-      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.6.1</span></h1>
-      <p class="appheader__sub">NBR 7229 · NBR 13969 · NBR 8160 · NBR 6118</p>
-    </div>
+<nav class="navbar" id="dashboardSidebar" aria-label="Navegação do DRE">
+  <div class="dashboard-brand">
+    <span class="dashboard-logo"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9" width="5" height="9" rx="1"/><rect x="10" y="6" width="5" height="12" rx="1"/><rect x="17.5" y="11" width="4" height="7" rx="1"/><path d="M7.5 13H10m5 2h2.5M5 6v3m14 9v3"/></svg></span>
+    <div class="dashboard-brand-text"><strong>DRE</strong><span>Engenharia sanitária</span></div>
   </div>
+  <div class="tabnav" role="tablist" aria-label="Seções do projeto" aria-orientation="vertical">
+    <span class="dashboard-group" aria-hidden="true">Dimensionamento</span>
+    <button type="button" class="tabnav__btn" id="tabBtnDados" role="tab" aria-controls="viewDados" aria-label="Dados de entrada" aria-selected="true" tabindex="0" title="Dados de entrada"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 8h6m-6 4h6m-6 4h4"/></svg><span>Dados de entrada</span></button>
+    <button type="button" class="tabnav__btn" id="tabBtnMemorial" role="tab" aria-controls="viewMemorial" aria-label="Memorial de cálculo" aria-selected="false" tabindex="-1" title="Memorial de cálculo"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 16v-3m3 3v-5m3 5V8"/></svg><span>Memorial de cálculo</span></button>
+    <button type="button" class="tabnav__btn" id="tabBtnProjeto" role="tab" aria-controls="viewProjeto" aria-label="Projeto e desenhos" aria-selected="false" tabindex="-1" title="Projeto e desenhos"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16L4 4Zm4 9v3h3M4 8h2m2 12v-2m5 2v-2"/></svg><span>Projeto e desenhos</span></button>
+    <button type="button" class="tabnav__btn" id="tabBtnMateriais" role="tab" aria-controls="viewMateriais" aria-label="Materiais" aria-selected="false" tabindex="-1" title="Materiais"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></svg><span>Materiais</span></button>
+    <span class="dashboard-group" aria-hidden="true">Documentação</span>
+    <button type="button" class="tabnav__btn" id="tabBtnTabelas" role="tab" aria-controls="viewTabelas" aria-label="Normas técnicas" aria-selected="false" tabindex="-1" title="Normas técnicas"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Zm0 0v15"/></svg><span>Normas técnicas</span></button>
+    <button type="button" class="tabnav__btn" id="tabBtnRelatorio" role="tab" aria-controls="viewRelatorio" aria-label="Relatório final" aria-selected="false" tabindex="-1" title="Relatório final"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Zm0 0v5h5M9 12h6m-6 4h6"/></svg><span>Relatório final</span></button>
+  </div>
+  <div class="dashboard-version"><span class="vtag">v6.7.0</span></div>
+</nav>
+
+<header class="appheader">
+  <div class="dashboard-breadcrumb">
+    <button id="dashboardToggle" class="btn dashboard-icon-button" type="button" aria-label="Recolher navegação" aria-controls="dashboardSidebar" aria-expanded="true" title="Alternar navegação"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
+    <span class="dashboard-separator" aria-hidden="true"></span>
+    <span class="dashboard-crumb-home">Projeto</span><span aria-hidden="true">/</span><strong id="dashboardBreadcrumb">Dados de entrada</strong>
+  </div>
+  <h1 class="dashboard-print-title">DRE · Dimensionamento de Redes de Esgoto</h1>
   <div class="appheader__right">
     <select class="hproject" id="projectSelect" title="Projeto ativo" style="display:none;"></select>
     <button type="button" class="hbtn" id="renameProjectBtn" title="Renomear projeto ativo">✎</button>
@@ -967,31 +865,16 @@
     <button type="button" class="hbtn" id="newProjectBtn" title="Criar novo projeto">+ Projeto</button>
     <button type="button" class="hbtn primary" id="saveProjBtn" title="Salvar todos os dados do projeto em um arquivo">💾 Salvar</button>
     <button type="button" class="htheme" id="themeToggle" title="Alternar tema" aria-label="Alternar tema claro/escuro">◐</button>
-    <div class="appheader__clock">
-      <div class="time" id="headerClockTime">--:--</div>
-      <div class="date" id="headerClockDate">—</div>
-    </div>
+    <button type="button" class="btn dashboard-search" id="dashboardSearch" aria-label="Buscar no DRE"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><span>Buscar</span><kbd>Ctrl K</kbd></button>
   </div>
 </header>
 
-<div class="navbar">
-  <div style="max-width:1220px;margin:0 auto;">
-    <div class="tabnav" role="tablist">
-      <button type="button" class="tabnav__btn" id="tabBtnDados" role="tab" aria-selected="true">📝 Dados de entrada</button>
-      <button type="button" class="tabnav__btn" id="tabBtnMemorial" role="tab" aria-selected="false">📊 Memorial de cálculo</button>
-      <button type="button" class="tabnav__btn" id="tabBtnProjeto" role="tab" aria-selected="false">📐 Projeto (desenhos)</button>
-      <button type="button" class="tabnav__btn" id="tabBtnMateriais" role="tab" aria-selected="false">🧱 Materiais</button>
-      <button type="button" class="tabnav__btn" id="tabBtnTabelas" role="tab" aria-selected="false">📖 Normas técnicas (manual)</button>
-      <button type="button" class="tabnav__btn" id="tabBtnRelatorio" role="tab" aria-selected="false">📄 Relatório final</button>
-    </div>
-  </div>
-</div>
-
-<div class="wrap">
+<main class="wrap" id="dashboardMain">
 
   <div class="printhead" id="printHead"></div>
 
-  <div class="toolbar" style="justify-content:flex-end;flex-wrap:wrap;">
+  <div class="toolbar dashboard-pagebar">
+    <h2 id="dashboardPageTitle">Dados de entrada</h2>
     <span id="autosaveNote" class="hint mono" style="display:none;margin-right:auto;color:var(--ink-faint);"></span>
     <button type="button" class="btn small" id="openProjBtn" title="Carregar um projeto salvo anteriormente">📂 Abrir projeto</button>
     <input type="file" id="importProjInput" accept="application/json,.json" style="display:none;">
@@ -1000,7 +883,7 @@
     <button type="button" class="btn" id="printBtn" title="Gerar memorial em PDF">⎙ Gerar memorial (PDF)</button>
   </div>
 
-  <div id="viewDados" class="tabview">
+  <div id="viewDados" class="tabview" role="tabpanel" aria-labelledby="tabBtnDados">
       <div class="panel">
         <div class="panel__head"><h2>0 · Identificação da obra</h2></div>
         <div class="panel__body form-fields">
@@ -1267,9 +1150,9 @@
   </div>
   <!-- /viewDados -->
 
-  <div id="viewMemorial" class="tabview" style="display:none;">
+  <div id="viewMemorial" class="tabview" role="tabpanel" aria-labelledby="tabBtnMemorial" style="display:none;">
       <div class="panel">
-        <div class="panel__head"><h2 id="resultsTitle">Memorial de cálculo</h2><span class="hint mono" id="catEcho"></span></div>
+        <div class="panel__head"><h2>Resumo do dimensionamento</h2><span class="hint mono" id="catEcho"></span></div>
         <div class="panel__body">
           <div id="memorialSummary" class="result-summary" aria-label="Resumo do dimensionamento"></div>
           <div id="codeReview" class="code-review"></div>
@@ -1344,7 +1227,7 @@
   </div>
   <!-- /viewMemorial -->
 
-  <div id="viewProjeto" class="tabview" style="display:none;">
+  <div id="viewProjeto" class="tabview" role="tabpanel" aria-labelledby="tabBtnProjeto" style="display:none;">
 
     <section class="panel">
       <div class="panel__head"><h2>Prancheta dos módulos</h2><div class="three-controls">
@@ -1563,7 +1446,7 @@
   </div>
   <!-- /viewProjeto -->
 
-  <div id="viewMateriais" class="tabview" style="display:none;">
+  <div id="viewMateriais" class="tabview" role="tabpanel" aria-labelledby="tabBtnMateriais" style="display:none;">
       <div class="panel">
         <div class="panel__head"><h2>Parâmetros de armadura</h2><span class="hint">valores sugeridos pré-preenchidos — editável</span></div>
         <div class="panel__body">
@@ -1742,7 +1625,7 @@
   </div>
   <!-- /viewMateriais -->
 
-  <div id="viewTabelas" class="tabview" style="display:none;">
+  <div id="viewTabelas" class="tabview" role="tabpanel" aria-labelledby="tabBtnTabelas" style="display:none;">
       <div class="panel">
         <div class="panel__head"><h2>Normas técnicas utilizadas — manual de consulta</h2><span class="hint">v6.0 · revisão normativa</span></div>
         <div class="panel__body">
@@ -1843,7 +1726,7 @@
   </div>
   <!-- /viewTabelas -->
 
-  <div id="viewRelatorio" class="tabview" style="display:none;">
+  <div id="viewRelatorio" class="tabview" role="tabpanel" aria-labelledby="tabBtnRelatorio" style="display:none;">
       <div class="panel" id="reportPanel">
         <div class="panel__head"><h2>Relatório de execução para o construtor</h2><span class="hint">documento completo</span></div>
         <div class="panel__body" id="reportBody"></div>
@@ -1877,7 +1760,17 @@
   </div>
   <!-- /viewRelatorio -->
 
-</div>
+</main>
+
+<dialog id="dashboardCommand" class="dashboard-command" aria-labelledby="dashboardCommandTitle">
+  <div class="dashboard-command-head">
+    <label id="dashboardCommandTitle" for="dashboardCommandQuery"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><span class="dashboard-sr-only">Buscar seção ou ação</span></label>
+    <input id="dashboardCommandQuery" type="search" placeholder="Buscar seção ou ação…" autocomplete="off">
+    <button id="dashboardCommandClose" class="btn small" type="button" aria-label="Fechar busca">Esc</button>
+  </div>
+  <div id="dashboardCommandItems" class="dashboard-command-items"></div>
+  <p id="dashboardCommandEmpty" class="dashboard-command-empty" hidden>Nenhuma seção ou ação encontrada.</p>
+</dialog>
 
 <div id="previewOverlay">
   <div class="preview-toolbar">
@@ -1909,6 +1802,7 @@
 <script src="js/calc.js?v=2"></script>
 <script src="js/vendor/three-svg-0.183.2.js"></script>
 <script src="js/three-views.js"></script>
+<script src="js/dashboard.js"></script>
 <script>
 (function(){
   "use strict";
@@ -2005,14 +1899,6 @@
       showToast("Não foi possível salvar o arquivo.", "bad", "Erro");
       return Promise.resolve({ ok:false, error:String(e) });
     }
-  }
-
-  function updateHeaderClock(){
-    var now = new Date();
-    var t = el("headerClockTime");
-    var d = el("headerClockDate");
-    if (t) t.textContent = now.toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
-    if (d) d.textContent = now.toLocaleDateString("pt-BR", { weekday:"short", day:"2-digit", month:"short", year:"numeric" }).toUpperCase();
   }
 
   var state = {
@@ -4033,8 +3919,8 @@
       return '<article><h3>'+name+'</h3><dl><dt>Mínimo exigido</dt><dd>'+value(minimum)+'</dd>'
         + '<dt>Adotado</dt><dd>'+value(adopted)+'</dd><dt>'+(deficit ? 'Déficit' : 'Margem')
         + '</dt><dd class="'+(deficit ? 'deficit' : '')+'">'+value(Math.abs(difference))+'</dd></dl>'
-        + (unit === "m²" ? '<div class="infil-chart" id="memorialInfilChart"></div>' : '') + '</article>';
-    }).join("");
+        + '</article>';
+    }).join("") + '<div class="infil-chart" id="memorialInfilChart" aria-label="Vazão e capacidade de infiltração"></div>';
   }
 
   function renderModeComparison(padrao, unico){
@@ -4573,14 +4459,16 @@
     function switchTab(active){
       el("saveProjBtn").classList.toggle("primary", active === "Dados");
       el("printBtn").classList.toggle("primary", active === "Memorial" || active === "Relatorio");
+      window.DREDashboard.showSection(active);
       TAB_NAMES.forEach(function(name){
         var isActive = name === active;
         el("tabBtn"+name).setAttribute("aria-selected", isActive ? "true":"false");
+        el("tabBtn"+name).tabIndex = isActive ? 0 : -1;
         el("view"+name).style.display = isActive ? "" : "none";
       });
     }
     TAB_NAMES.forEach(function(name){
-      el("tabBtn"+name).addEventListener("click", function(){ switchTab(name); });
+      el("tabBtn"+name).addEventListener("click", function(){ switchTab(name); window.scrollTo(0,0); });
     });
     window.switchTab = switchTab;
     el("modeComparison").addEventListener("click", function(event){
@@ -4696,8 +4584,6 @@
     });
   }
 
-  updateHeaderClock();
-  setInterval(updateHeaderClock, 30000);
 
   renderContribs();
   buildSelects();
@@ -4710,7 +4596,7 @@
   el("autosaveNote").textContent = "projeto \"" + currentProjectName() + "\" carregado";
 
   if (el("copyrightNotice")){
-    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.6.1.";
+    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.7.0.";
   }
 })();
 </script>

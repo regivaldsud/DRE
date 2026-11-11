@@ -4,7 +4,11 @@ Aplicativo desktop para estimar dimensões e quantitativos de fossas sépticas, 
 
 ## Projeto e gráficos
 
-As imagens mostram um projeto de demonstração do DRE 6.5.0.
+O painel do DRE 6.7.0 adapta a navegação lateral, a trilha de seção e a busca por comandos do [Next Shadcn Dashboard Starter, de Kiranism](https://github.com/Kiranism/next-shadcn-dashboard-starter). Use **Ctrl+K** para abrir uma seção ou executar uma ação.
+
+![Dashboard do DRE com navegação lateral e Memorial de cálculo](docs/imagens/dashboard.png)
+
+As imagens técnicas abaixo mostram um projeto de demonstração.
 
 ### Prancheta do projeto
 
