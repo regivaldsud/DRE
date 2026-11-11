@@ -1,0 +1,10 @@
+/Dimensionamento de Fossa 6.0/*
+!/Dimensionamento de Fossa 6.0/resources/
+/Dimensionamento de Fossa 6.0/resources/*
+!/Dimensionamento de Fossa 6.0/resources/app/
+/instalador/.build-*/
+/.dre-*/
+/INSTALAR FOSSA *.exe
+node_modules/
+*.xlsx
+*.lnk
