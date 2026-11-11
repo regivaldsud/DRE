@@ -2,6 +2,34 @@
 
 Aplicativo desktop para estimar dimensões e quantitativos de fossas sépticas, filtros anaeróbios, sumidouros e caixas de gordura. A aba Projeto reúne as vistas 3D, em planta e em corte, além do esquema de empuxo no sumidouro. O Memorial compara as dimensões mínimas calculadas com as adotadas.
 
+## Projeto e gráficos
+
+As imagens mostram um projeto de demonstração do DRE 6.5.0.
+
+### Prancheta do projeto
+
+Vista 3D em corte do filtro anaeróbio, com o meio filtrante e as tubulações de entrada e saída.
+
+![Prancheta com o modelo 3D do filtro anaeróbio](docs/imagens/projeto-3d.png)
+
+Corte longitudinal do sumidouro, com cotas, paredes perfuradas e indicação do fundo aberto.
+
+![Corte longitudinal cotado do sumidouro](docs/imagens/corte-sumidouro.png)
+
+### Empuxo e esforços do sumidouro
+
+O esquema frontal mostra a distribuição da pressão externa, a resultante e a altura em que ela atua. Os diagramas por parede mostram pressão, cortante e momento para uma faixa de 1 m em balanço.
+
+![Diagrama do empuxo com pressão no topo e na base e força resultante](docs/imagens/empuxo.png)
+
+![Elevações e diagramas de pressão, cortante e momento das quatro paredes](docs/imagens/esforcos-paredes.png)
+
+### Resumo do memorial
+
+Comparação entre os valores mínimos calculados e os adotados, com gráfico de vazão de projeto e capacidade estimada de infiltração.
+
+![Resumo da fossa, do filtro e do sumidouro com gráfico de infiltração](docs/imagens/memorial.png)
+
 ## Executar o código-fonte
 
 Com Node.js e npm instalados, abra o PowerShell na raiz do repositório:
