@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $app = Join-Path $root 'Dimensionamento de Fossa 6.0'
+$motor = Join-Path $app 'resources/app/js/motor-rust.js'
+if (!(Test-Path -LiteralPath $motor -PathType Leaf)) { throw 'Gere o motor WebAssembly com node motor-rust/gerar-wasm.cjs.' }
 $version = (Get-Content -LiteralPath (Join-Path $app 'resources/app/package.json') -Raw | ConvertFrom-Json).version
 if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Versão inválida em package.json.' }
 

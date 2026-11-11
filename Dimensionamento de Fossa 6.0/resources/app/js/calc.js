@@ -1,15 +1,14 @@
-/* Núcleo de cálculo (NBR 7229 / NBR 13969 / NBR 8160) — funções puras, sem DOM.
+/* Regras de dimensionamento e integração com o motor numérico Rust, sem DOM.
  * Roda em Node (require, usado pelos testes) e no navegador (window.DRE_CALC).
- * Qualquer mudança de fórmula deve ser feita AQUI (o script da UI só chama estas
- * funções) para não haver duas cópias da mesma conta divergindo com o tempo. */
+ * As fórmulas compiladas para WebAssembly ficam em motor-rust/src/lib.rs. */
 (function (root, factory) {
   "use strict";
   if (typeof module === "object" && module.exports) {
-    module.exports = factory(require("./data.js"));
+    module.exports = factory(require("./data.js"), require("./motor-rust.js"));
   } else {
-    root.DRE_CALC = factory(root.DRE_DATA);
+    root.DRE_CALC = factory(root.DRE_DATA, root.DRE_RUST);
   }
-}(typeof self !== "undefined" ? self : this, function (DATA) {
+}(typeof self !== "undefined" ? self : this, function (DATA, MOTOR) {
   "use strict";
 
   var TABELA1 = DATA.TABELA1, TABELA2 = DATA.TABELA2, TABELA3 = DATA.TABELA3,
@@ -28,36 +27,25 @@
   /* Área de infiltração do sumidouro. contarFundo=false considera só as paredes
    * laterais (critério conservador: o fundo colmata primeiro); true soma o fundo. */
   function areaSumidouro(comp, larg, h, contarFundo){
-    return (contarFundo === false ? 0 : comp*larg) + 2*larg*h + 2*comp*h;
+    return MOTOR.dre_area_infiltracao(comp,larg,h,contarFundo === false ? 0 : 1);
   }
 
   // Integra trechos lineares da pressão externa na altura da parede.
   function calcularEmpuxo(dados){
     var h = dados.height;
-    var pesoAgua = 9.81;
     var nivel = Number.isFinite(dados.waterDepth) ? Math.min(h, Math.max(0,dados.waterDepth)) : h;
-    var pesoSubmerso = Math.max(0,(dados.saturatedWeight ?? 20) - pesoAgua);
+    var parametros = [nivel,dados.soilWeight,dados.saturatedWeight ?? 20,dados.ka,dados.surcharge];
     function point(z){
-      var submerso = Math.max(0,z-nivel);
-      var solo = dados.ka * (dados.surcharge + dados.soilWeight * Math.min(z,nivel) + pesoSubmerso * submerso);
-      var agua = pesoAgua * submerso;
+      var solo = MOTOR.dre_pressao_solo(z,...parametros);
+      var agua = MOTOR.dre_pressao_agua(z,nivel);
       return { z:z, solo:solo, agua:agua, total:solo+agua };
     }
     var depths = nivel > 0 && nivel < h ? [0,nivel,h] : [0,h];
     var perfil = depths.map(point);
-    var alturaFaixa = function(z){
-      var v = 0, m = 0;
-      for (var i=1;i<perfil.length && perfil[i-1].z<z;i++){
-        var a = perfil[i-1];
-        var b = point(Math.min(z,perfil[i].z));
-        var dz = b.z-a.z;
-        var constante = a.total * dz;
-        var triangular = (b.total-a.total) * dz / 2;
-        v += constante+triangular;
-        m += constante*(z-a.z-dz/2) + triangular*(z-a.z-2*dz/3);
-      }
-      return { z:z, pressao:point(z).total, cortante:v, momento:m };
-    };
+    function alturaFaixa(z){
+      return { z:z, pressao:point(z).total,
+        cortante:MOTOR.dre_esforco(z,...parametros,0), momento:MOTOR.dre_esforco(z,...parametros,1) };
+    }
     var baseFaixa = alturaFaixa(h);
     var resultante = baseFaixa.cortante*dados.influence;
     var momentoBase = baseFaixa.momento*dados.influence;
@@ -70,7 +58,11 @@
       topo: topo, base: base, cargaTopo: topo*dados.influence, cargaBase: base*dados.influence,
       resultante: resultante, momentoBase: momentoBase,
       alturaAplicacao: resultante > 0 ? momentoBase / resultante : null,
-      perfil:perfil, diagramas:amostras.map(alturaFaixa), avaliarFaixa:alturaFaixa
+      perfil:perfil, diagramas:amostras.map(alturaFaixa), avaliarFaixa:alturaFaixa,
+      maximosFaixa:function(altura,biapoiada){
+        return { v:MOTOR.dre_maximo(altura,...parametros,biapoiada,0),
+          m:MOTOR.dre_maximo(altura,...parametros,biapoiada,1) };
+      }
     };
   }
 
@@ -107,14 +99,13 @@
    * um valor normativo fechado — é a referência prática de projeto hidrossanitário
    * (quanto maior o DN, menor a declividade mínima exigida p/ autolimpeza). */
   function quedaMinima(distM, dn){
-    var pct = lookupDeclividadeMin(dn);
-    return distM * (pct/100);
+    return MOTOR.dre_queda(distM,lookupDeclividadeMin(dn));
   }
 
   function calcularInterligacoes(dn, fossaFiltro, filtroSumidouro){
     var declividade = lookupDeclividadeMin(dn);
     var trechos = [fossaFiltro, filtroSumidouro].map(function(comprimento){
-      var queda = comprimento * declividade / 100;
+      var queda = MOTOR.dre_queda(comprimento,declividade);
       return { comprimento:comprimento, queda:queda, tubo:Math.hypot(comprimento, queda) };
     });
     return { dn:dn, declividade:declividade, trechos:trechos, tubo:trechos[0].tubo + trechos[1].tubo };
@@ -144,22 +135,8 @@
   }
 
   function verificarFaixa(carga, altura, apoio, fator, resistencia){
-    var total = carga.diagramas.at(-1);
-    var biapoiada = apoio === "biapoiada";
-    var reacaoTopo = biapoiada ? total.momento/altura : 0;
-    var v = Math.max(reacaoTopo,total.cortante-reacaoTopo)*fator;
-    var m = total.momento;
-    if (biapoiada){
-      var inferior=0, superior=altura;
-      for (var i=0;i<45;i++){
-        var meio=(inferior+superior)/2;
-        if(carga.avaliarFaixa(meio).cortante<reacaoTopo) inferior=meio;
-        else superior=meio;
-      }
-      var z=(inferior+superior)/2;
-      m=Math.max(0,reacaoTopo*z-carga.avaliarFaixa(z).momento);
-    }
-    m*=fator;
+    var maximos = carga.maximosFaixa(altura,apoio === "biapoiada" ? 1 : 0);
+    var v = maximos.v*fator, m = maximos.m*fator;
     return { v:v, m:m,
       atendeV:Number.isFinite(resistencia.v) ? v<=resistencia.v : null,
       atendeM:Number.isFinite(resistencia.m) ? m<=resistencia.m : null };
@@ -310,8 +287,8 @@
       var vazao_i = c.N * C;
       var Tfossa_i = verificados ? verificados.tFossa : lookupT(vazao_i);
       var Tfiltro_i = verificados ? verificados.tFiltro : input.tfiltroAuto ? Tfossa_i : input.tfiltroManual;
-      var termoFossa_i = c.N * (C*Tfossa_i + K*Lf);
-      var termoFiltro_i = c.N * C * Tfiltro_i;
+      var termoFossa_i = MOTOR.dre_termo_fossa(c.N,C,Tfossa_i,K,Lf);
+      var termoFiltro_i = MOTOR.dre_termo_filtro(c.N,C,Tfiltro_i);
       sumN += c.N;
       sumVazao += vazao_i;
       sumFossaTerm += termoFossa_i;

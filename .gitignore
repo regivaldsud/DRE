@@ -3,6 +3,7 @@
 /Dimensionamento de Fossa 6.0/resources/*
 !/Dimensionamento de Fossa 6.0/resources/app/
 /instalador/.build-*/
+/motor-rust/target/
 /.dre-*/
 /INSTALAR FOSSA *.exe
 node_modules/

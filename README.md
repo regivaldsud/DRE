@@ -42,6 +42,20 @@ npx --yes electron@31.7.7 .
 
 O Three.js já está incluído no código. Sua licença acompanha a biblioteca em `resources/app/js/vendor`.
 
+### Motor numérico em Rust
+
+As rotinas de empuxo, esforços da faixa, área de infiltração, desníveis e parcelas de volume são compiladas para WebAssembly. O motor vem incluído no aplicativo e funciona offline.
+
+Para recompilar o motor, execute na raiz do repositório:
+
+```powershell
+rustup target add wasm32-unknown-unknown
+cargo test --manifest-path motor-rust/Cargo.toml
+node motor-rust/gerar-wasm.cjs
+```
+
+O arquivo gerado em `resources/app/js/motor-rust.js` é usado pela interface e pelos testes de cálculo. Os arquivos JSON de projeto continuam com o mesmo formato.
+
 ## Gerar o instalador para Windows x64
 
 1. Extraia a distribuição oficial **Electron 31.7.7 para Windows x64** na pasta `Dimensionamento de Fossa 6.0`, preservando os arquivos do repositório em `resources/app`.

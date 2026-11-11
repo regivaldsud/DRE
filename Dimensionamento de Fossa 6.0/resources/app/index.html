@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>DRE 6.5.0 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
+<title>DRE 6.6.0 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
 <style>
   /* =====================================================================
      DRE 6.0 — Sistema visual (design tokens)
@@ -957,7 +957,7 @@
     </div>
     <div>
       <p class="appheader__eyebrow">ENGENHARIA SANITÁRIA</p>
-      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.5.0</span></h1>
+      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.6.0</span></h1>
       <p class="appheader__sub">NBR 7229 · NBR 13969 · NBR 8160 · NBR 6118</p>
     </div>
   </div>
@@ -1907,6 +1907,7 @@
 <div class="toaststack" id="toastStack"></div>
 
 <script src="js/data.js?v=2"></script>
+<script src="js/motor-rust.js"></script>
 <script src="js/calc.js?v=2"></script>
 <script src="js/vendor/three-svg-0.183.2.js"></script>
 <script src="js/three-views.js"></script>
@@ -4713,7 +4714,7 @@
   el("autosaveNote").textContent = "projeto \"" + currentProjectName() + "\" carregado";
 
   if (el("copyrightNotice")){
-    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.5.0.";
+    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.6.0.";
   }
 })();
 </script>
