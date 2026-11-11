@@ -31,23 +31,70 @@
     return (contarFundo === false ? 0 : comp*larg) + 2*larg*h + 2*comp*h;
   }
 
-  // Integra a pressão linear na altura e na faixa de influência da parede.
+  // Integra trechos lineares da pressão externa na altura da parede.
   function calcularEmpuxo(dados){
     var h = dados.height;
-    var topo = dados.ka * dados.surcharge;
-    var incremento = dados.ka * dados.soilWeight * h;
-    var base = topo + incremento;
-    var cargaTopo = topo * dados.influence;
-    var cargaBase = base * dados.influence;
-    var uniforme = cargaTopo * h;
-    var triangular = incremento * dados.influence * h / 2;
-    var resultante = uniforme + triangular;
-    var momentoBase = (uniforme / 2 + triangular / 3) * h;
-    return {
-      topo: topo, base: base, cargaTopo: cargaTopo, cargaBase: cargaBase,
-      resultante: resultante, momentoBase: momentoBase,
-      alturaAplicacao: resultante > 0 ? momentoBase / resultante : null
+    var pesoAgua = 9.81;
+    var nivel = Number.isFinite(dados.waterDepth) ? Math.min(h, Math.max(0,dados.waterDepth)) : h;
+    var pesoSubmerso = Math.max(0,(dados.saturatedWeight ?? 20) - pesoAgua);
+    function point(z){
+      var submerso = Math.max(0,z-nivel);
+      var solo = dados.ka * (dados.surcharge + dados.soilWeight * Math.min(z,nivel) + pesoSubmerso * submerso);
+      var agua = pesoAgua * submerso;
+      return { z:z, solo:solo, agua:agua, total:solo+agua };
+    }
+    var depths = nivel > 0 && nivel < h ? [0,nivel,h] : [0,h];
+    var perfil = depths.map(point);
+    var alturaFaixa = function(z){
+      var v = 0, m = 0;
+      for (var i=1;i<perfil.length && perfil[i-1].z<z;i++){
+        var a = perfil[i-1];
+        var b = point(Math.min(z,perfil[i].z));
+        var dz = b.z-a.z;
+        var constante = a.total * dz;
+        var triangular = (b.total-a.total) * dz / 2;
+        v += constante+triangular;
+        m += constante*(z-a.z-dz/2) + triangular*(z-a.z-2*dz/3);
+      }
+      return { z:z, pressao:point(z).total, cortante:v, momento:m };
     };
+    var baseFaixa = alturaFaixa(h);
+    var resultante = baseFaixa.cortante*dados.influence;
+    var momentoBase = baseFaixa.momento*dados.influence;
+    var topo = perfil[0].total;
+    var base = perfil[perfil.length-1].total;
+    var amostras = Array.from({length:21},function(_,i){ return h*i/20; });
+    if (depths.length === 3 && !amostras.includes(nivel)) amostras.push(nivel);
+    amostras.sort(function(a,b){return a-b;});
+    return {
+      topo: topo, base: base, cargaTopo: topo*dados.influence, cargaBase: base*dados.influence,
+      resultante: resultante, momentoBase: momentoBase,
+      alturaAplicacao: resultante > 0 ? momentoBase / resultante : null,
+      perfil:perfil, diagramas:amostras.map(alturaFaixa), avaliarFaixa:alturaFaixa
+    };
+  }
+
+  function calcularParedesSumidouro(comprimento, largura, dados, sobrecargas){
+    return [comprimento, largura, comprimento, largura].map(function(face,i){
+      var q = sobrecargas[i] ?? dados.surcharge;
+      var carga = calcularEmpuxo(Object.assign({},dados,{ influence:face, surcharge:q }));
+      return Object.assign({ id:"P"+(i+1), face:face, surcharge:q },carga);
+    });
+  }
+
+  function avaliarEscopo17076(vazao, dbo){
+    return {
+      vazaoExcede:vazao > 12000,
+      dboExcede:Number.isFinite(dbo) && dbo > 3.8,
+      dboInformada:Number.isFinite(dbo)
+    };
+  }
+
+  function areaInternaSumidouro(dims, parede){
+    var comprimento = Math.max(0,dims[0]-2*parede);
+    var largura = Math.max(0,dims[1]-2*parede);
+    var area = comprimento > 0 && largura > 0 ? areaSumidouro(comprimento,largura,dims[2],true) : 0;
+    return { comprimento:comprimento, largura:largura, area:area };
   }
 
   function lookupDeclividadeMin(dn){
@@ -62,6 +109,60 @@
   function quedaMinima(distM, dn){
     var pct = lookupDeclividadeMin(dn);
     return distM * (pct/100);
+  }
+
+  function calcularInterligacoes(dn, fossaFiltro, filtroSumidouro){
+    var declividade = lookupDeclividadeMin(dn);
+    var trechos = [fossaFiltro, filtroSumidouro].map(function(comprimento){
+      var queda = comprimento * declividade / 100;
+      return { comprimento:comprimento, queda:queda, tubo:Math.hypot(comprimento, queda) };
+    });
+    return { dn:dn, declividade:declividade, trechos:trechos, tubo:trechos[0].tubo + trechos[1].tubo };
+  }
+
+  function perfilComCotas(interligacoes, cotas){
+    var dados = [
+      { inicial:cotas.saidaFossa, final:cotas.entradaFiltro },
+      { inicial:cotas.saidaFiltro, final:cotas.entradaSumidouro }
+    ];
+    var trechos = dados.map(function(pontos,i){
+      var minimo = interligacoes.trechos[i].queda;
+      var completa = Number.isFinite(pontos.inicial) && Number.isFinite(pontos.final);
+      var medida = completa ? pontos.inicial-pontos.final : null;
+      return { inicial:pontos.inicial, final:pontos.final, queda:medida,
+        maximo:Number.isFinite(pontos.inicial) ? pontos.inicial-minimo : null,
+        atende:completa ? medida >= minimo-1e-8 : null };
+    });
+    var bases = [
+      Number.isFinite(cotas.saidaFossa) ? cotas.saidaFossa-cotas.alturaFossa : null,
+      Number.isFinite(cotas.entradaFiltro) && Number.isFinite(cotas.entradaFiltroAteBase) ? cotas.entradaFiltro-cotas.entradaFiltroAteBase : null,
+      Number.isFinite(cotas.entradaSumidouro) ? cotas.entradaSumidouro-cotas.alturaSumidouro : null
+    ];
+    return { trechos:trechos, bases:bases, profundidades:bases.map(function(base){
+      return base === null || !Number.isFinite(cotas.terreno) ? null : cotas.terreno-base;
+    }) };
+  }
+
+  function verificarFaixa(carga, altura, apoio, fator, resistencia){
+    var total = carga.diagramas.at(-1);
+    var biapoiada = apoio === "biapoiada";
+    var reacaoTopo = biapoiada ? total.momento/altura : 0;
+    var v = Math.max(reacaoTopo,total.cortante-reacaoTopo)*fator;
+    var m = total.momento;
+    if (biapoiada){
+      var inferior=0, superior=altura;
+      for (var i=0;i<45;i++){
+        var meio=(inferior+superior)/2;
+        if(carga.avaliarFaixa(meio).cortante<reacaoTopo) inferior=meio;
+        else superior=meio;
+      }
+      var z=(inferior+superior)/2;
+      m=Math.max(0,reacaoTopo*z-carga.avaliarFaixa(z).momento);
+    }
+    m*=fator;
+    return { v:v, m:m,
+      atendeV:Number.isFinite(resistencia.v) ? v<=resistencia.v : null,
+      atendeM:Number.isFinite(resistencia.m) ? m<=resistencia.m : null };
   }
 
   function fmt(n, dec){
@@ -186,10 +287,14 @@
    *           mode:"padrao"|"unico", larg, fossa:{comp,h}, filtro:{comp,h}, sumid:{comp,h},
    *           numSumUnits, cgEnabled, cgNum, cgRefeicoes } */
   function dimensionar(input){
-    var K = lookupK(input.intervaloIdx, input.tempIdx);
+    var verificados = input.parametrosVerificados;
+    var K = verificados ? verificados.k : lookupK(input.intervaloIdx, input.tempIdx);
     var contarFundo = input.contarFundoSumidouro !== false;
     var taxa, percInterpNote = "";
-    if (input.percMedido !== null && input.percMedido !== undefined && !isNaN(input.percMedido) && input.percMedido > 0){
+    if (verificados){
+      taxa = verificados.infiltracao;
+      percInterpNote = "Taxa de aplicação confirmada no projeto: "+fmt(taxa,3)+" m³/m².dia.";
+    } else if (input.percMedido !== null && input.percMedido !== undefined && !isNaN(input.percMedido) && input.percMedido > 0){
       taxa = interpTaxa(input.percMedido);
       percInterpNote = "Taxa interpolada: " + taxa.toFixed(3) + " m³/m².dia (a partir de " + input.percMedido + " min/m medido)";
     } else {
@@ -203,8 +308,8 @@
       var C = cat.custom ? c.customC : cat.C;
       var Lf = cat.custom ? c.customLf : cat.Lf;
       var vazao_i = c.N * C;
-      var Tfossa_i = lookupT(vazao_i);
-      var Tfiltro_i = input.tfiltroAuto ? Tfossa_i : input.tfiltroManual;
+      var Tfossa_i = verificados ? verificados.tFossa : lookupT(vazao_i);
+      var Tfiltro_i = verificados ? verificados.tFiltro : input.tfiltroAuto ? Tfossa_i : input.tfiltroManual;
       var termoFossa_i = c.N * (C*Tfossa_i + K*Lf);
       var termoFiltro_i = c.N * C * Tfiltro_i;
       sumN += c.N;
@@ -239,7 +344,7 @@
 
       var volFiltroMod = input.filtro.comp * larg * input.filtro.h * 1000;
       var capFiltroMod = volFiltroMod / (1.6*Math.max(wFiltroC_T,0.0001));
-      var qtyFiltro = Math.max(1, Math.ceil(sumN / Math.max(capFiltroMod,0.0001)));
+      var qtyFiltro = Math.max(1, Math.ceil(VminFiltro / volFiltroMod - 1e-9));
 
       var areaSumMod = areaSumidouro(input.sumid.comp, larg, input.sumid.h, contarFundo);
       var capSumMod = (areaSumMod * taxa * 1000) / Math.max(wC,0.0001);
@@ -261,6 +366,15 @@
       var HuFossa = (profFossa.min + profFossa.max)/2;
       var compFossa = ceilStep(VminFossa/(larg*HuFossa*1000), 0.1);
       var volFossaFinal = larg*compFossa*HuFossa*1000;
+      // Uma largura grande pode fazer o arredondamento cruzar a faixa de volume.
+      var faixaExecutada = lookupProf(volFossaFinal/1000);
+      while (HuFossa < faixaExecutada.min){
+        HuFossa = faixaExecutada.min;
+        compFossa = ceilStep(VminFossa/(larg*HuFossa*1000), 0.1);
+        volFossaFinal = larg*compFossa*HuFossa*1000;
+        faixaExecutada = lookupProf(volFossaFinal/1000);
+      }
+      profFossa = faixaExecutada;
 
       var HuFiltro = HuFossa;
       var compFiltro = ceilStep(VminFiltro/(larg*HuFiltro*1000), 0.1);
@@ -414,6 +528,9 @@
     fmt: fmt, fmtR$: fmtR$, fmtLM3: fmtLM3, ceilStep: ceilStep,
     lookupT: lookupT, lookupProf: lookupProf, lookupCG: lookupCG, interpTaxa: interpTaxa, kgmFor: kgmFor, areaFor: areaFor,
     lookupK: lookupK, areaSumidouro: areaSumidouro, calcularEmpuxo: calcularEmpuxo,
+    calcularParedesSumidouro: calcularParedesSumidouro, calcularInterligacoes: calcularInterligacoes,
+    avaliarEscopo17076: avaliarEscopo17076, areaInternaSumidouro: areaInternaSumidouro,
+    perfilComCotas: perfilComCotas, verificarFaixa: verificarFaixa,
     dimensionar: dimensionar, computeMateriaisCore: computeMateriaisCore, computeMateriaisAll: computeMateriaisAll,
     verificarNormas: verificarNormas, lookupClasseAgressividade: lookupClasseAgressividade,
     lookupDeclividadeMin: lookupDeclividadeMin, quedaMinima: quedaMinima,

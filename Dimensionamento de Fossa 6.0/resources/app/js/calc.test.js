@@ -8,13 +8,48 @@ var test = require("node:test");
 var assert = require("node:assert/strict");
 var calc = require("./calc.js");
 
+test("memorial publicado por Farroupilha: tanque 5.736 L e filtro 5.120 L", function(){
+  // https://arquivos.farroupilha.rs.gov.br/data/arquivos/HAB_POP_150_UN/IMPLANTACOES_INFRA_TRAT_ESGOTO_E_ABAST_AGUA/ARAUCARIA_IV_LOT_MORADAS_DA_SERRA/04_MS_SAN_ETE_02.pdf
+  var custom = require("./data.js").CUSTOM_IDX;
+  var out = calc.dimensionar({ contribs:[{catIndex:custom,N:32,customC:100,customLf:1}],
+    intervaloIdx:0,taxaIdx:0,mode:"unico",larg:1.6,sumid:{h:2},numSumUnits:2,
+    parametrosVerificados:{tFossa:0.83,k:65,tFiltro:1,infiltracao:0.2} });
+  assert.equal(out.sumVazao,3200);
+  assert.equal(out.VminFossa,5736);
+  assert.equal(out.VminFiltro,5120);
+});
+
+test("perfil com levantamento sinaliza contraqueda e preserva dados pendentes", function(){
+  var i = calc.calcularInterligacoes(100,4,7);
+  var r = calc.perfilComCotas(i,{terreno:100,saidaFossa:99,entradaFiltro:99.01,
+    saidaFiltro:98.9,entradaSumidouro:null,entradaFiltroAteBase:0.25,alturaFossa:2,alturaSumidouro:3});
+  assert.equal(r.trechos[0].atende,false);
+  assert.equal(r.trechos[1].atende,null);
+  assert.equal(r.trechos[0].maximo,99-i.trechos[0].queda);
+  assert.equal(r.profundidades[0],3);
+  assert.equal(r.bases[2],null);
+});
+
+test("faixa biapoiada sob pressão uniforme reproduz qL/2 e qL²/8", function(){
+  var carga = calc.calcularEmpuxo({height:4,ka:1,soilWeight:0,surcharge:10,influence:1});
+  var r = calc.verificarFaixa(carga,4,"biapoiada",1,{v:20,m:19});
+  assert.ok(Math.abs(r.v-20)<1e-9);
+  assert.ok(Math.abs(r.m-20)<1e-9);
+  assert.equal(r.atendeV,true);
+  assert.equal(r.atendeM,false);
+  var livre=calc.verificarFaixa(carga,4,"balanco",1,{v:null,m:null});
+  assert.equal(livre.v,40);
+  assert.equal(livre.m,80);
+  assert.equal(livre.atendeV,null);
+});
+
 test("calcularEmpuxo integra o caso trapezoidal da planilha do sumidouro", function(){
   var r = calc.calcularEmpuxo({ height:2.5, ka:1/3, soilWeight:18, surcharge:5, influence:1.5 });
   assert.equal(r.cargaTopo, 2.5);
-  assert.equal(r.cargaBase, 25);
-  assert.equal(r.resultante, 34.375);
-  assert.equal(r.momentoBase, 31.25);
-  assert.equal(r.alturaAplicacao, 10/11);
+  assert.ok(Math.abs(r.cargaBase-25)<1e-9);
+  assert.ok(Math.abs(r.resultante-34.375)<1e-9);
+  assert.ok(Math.abs(r.momentoBase-31.25)<1e-9);
+  assert.ok(Math.abs(r.alturaAplicacao-10/11)<1e-9);
 });
 
 test("calcularEmpuxo posiciona cargas uniformes e triangulares e trata pressão zero", function(){
@@ -26,6 +61,44 @@ test("calcularEmpuxo posiciona cargas uniformes e triangulares e trata pressão 
   assert.equal(triangular.alturaAplicacao, 1);
   assert.equal(zero.resultante, 0);
   assert.equal(zero.alturaAplicacao, null);
+});
+
+test("calcularInterligacoes usa o comprimento de cada trecho e o DN", function(){
+  var r = calc.calcularInterligacoes(100, 3, 7.5);
+  assert.equal(r.declividade, calc.lookupDeclividadeMin(100));
+  assert.equal(r.trechos[0].queda, 3*r.declividade/100);
+  assert.equal(r.trechos[1].queda, 7.5*r.declividade/100);
+  assert.ok(r.tubo > 10.5);
+});
+
+test("empuxo externo com água soma o peso submerso e a pressão hidrostática", function(){
+  var r = calc.calcularEmpuxo({
+    height:2, ka:0.5, surcharge:0, soilWeight:18, saturatedWeight:20, waterDepth:1, influence:1
+  });
+  assert.deepEqual(r.perfil.map(function(p){return p.z;}),[0,1,2]);
+  assert.ok(Math.abs(r.perfil[2].solo-14.095)<1e-9);
+  assert.equal(r.perfil[2].agua,9.81);
+  assert.ok(Math.abs(r.base-23.905)<1e-9);
+  var onlyWater = calc.calcularEmpuxo({ height:2, ka:0, surcharge:0, soilWeight:18, waterDepth:1, influence:2 });
+  assert.ok(Math.abs(onlyWater.resultante-9.81)<1e-9);
+  assert.ok(Math.abs(onlyWater.alturaAplicacao-1/3)<1e-9);
+  assert.equal(onlyWater.diagramas.at(-1).cortante,onlyWater.resultante/2);
+});
+
+test("as quatro paredes preservam largura de face e sobrecarga individual", function(){
+  var walls = calc.calcularParedesSumidouro(5,2,{ height:3, ka:0.5, surcharge:5, soilWeight:18 },[null,0,9,null]);
+  assert.deepEqual(walls.map(function(w){return [w.id,w.face,w.surcharge];}),
+    [["P1",5,5],["P2",2,0],["P3",5,9],["P4",2,5]]);
+  assert.ok(walls[2].resultante>walls[0].resultante);
+  assert.equal(walls[1].topo,0);
+});
+
+test("verificação de escopo e área de infiltração descontam as paredes", function(){
+  assert.deepEqual(calc.avaliarEscopo17076(12000,3.8),{ vazaoExcede:false, dboExcede:false, dboInformada:true });
+  assert.deepEqual(calc.avaliarEscopo17076(12001,null),{ vazaoExcede:true, dboExcede:false, dboInformada:false });
+  assert.equal(calc.avaliarEscopo17076(10000,3.81).dboExcede,true);
+  assert.deepEqual(calc.areaInternaSumidouro([4,2,2],0.25),{ comprimento:3.5, largura:1.5, area:25.25 });
+  assert.equal(calc.areaInternaSumidouro([4,0.3,2],0.25).area,0);
 });
 
 test("lookupT — limites exatos das faixas da Tabela 2 (NBR 7229)", function(){
@@ -220,13 +293,25 @@ test("dimensionar - filtro anaerobio respeita o piso de 1000 L da NBR 13969", fu
     intervaloIdx: 0, tempIdx: 2, taxaIdx: 0, percMedido: null,
     tfiltroAuto: true, tfiltroManual: 1,
     mode: "padrao", larg: 1.6,
-    fossa: { comp:4.6, h:2.4 }, filtro: { comp:5.6, h:1.67 }, sumid: { comp:5.8, h:3.0 },
+    fossa: { comp:4.6, h:2.4 }, filtro: { comp:0.5, h:0.5 }, sumid: { comp:5.8, h:3.0 },
     numSumUnits: 2, cgEnabled: false, cgNum: 1, cgRefeicoes: 500
   });
   // 2 x 80 x 1,0 x 1,6 = 256 L -> abaixo do piso normativo
   assert.equal(out.VminFiltroCalc, 256);
   assert.equal(out.VminFiltro, 1000);
   assert.equal(out.filtroPisoAplicado, true);
+  assert.equal(out.results.filtro.qty, 3);
+  assert.ok(out.results.filtro.qty * out.results.filtro.vol >= out.VminFiltro);
+});
+
+test("dimensionar confere a faixa de profundidade após arredondar a fossa otimizada", function(){
+  var out = calc.dimensionar({
+    contribs:[{ catIndex:0, N:5 }], intervaloIdx:0, taxaIdx:0, tfiltroAuto:true,
+    mode:"unico", larg:70, sumid:{ h:3 }, numSumUnits:2
+  });
+  assert.ok(out.VminFossa < 6000);
+  assert.ok(out.results.fossa.vol > 10000);
+  assert.ok(out.results.fossa.dims[2] >= calc.lookupProf(out.results.fossa.vol/1000).min);
 });
 
 test("areaSumidouro - com e sem o fundo", function(){

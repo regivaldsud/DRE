@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>DRE 6.3.0 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
+<title>DRE 6.5.0 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
 <style>
   /* =====================================================================
      DRE 6.0 — Sistema visual (design tokens)
@@ -793,6 +793,19 @@
   .result-summary dt{ color:var(--ink-soft); }
   .result-summary dd{ margin:0; text-align:right; font-weight:700; }
   .result-summary .deficit{ color:var(--bad); }
+  .comparison{ margin:12px 0 16px; }
+  .comparison td, .comparison th{ vertical-align:top; }
+  .comparison .active-mode{ color:var(--accent-strong); background:var(--accent-wash); }
+  .field-issue{ display:block; margin-top:4px; color:var(--bad); font-size:11.5px; line-height:1.5; }
+  input[aria-invalid="true"]{ border-color:var(--bad); }
+  .process-cotas{ margin-top:12px; }
+  .wall-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),1fr)); gap:10px; margin-top:12px; }
+  .wall-card{ border:1px solid var(--line); border-radius:var(--r-md); padding:10px; break-inside:avoid; }
+  .wall-card h3{ margin:0 0 5px; font-size:13px; }
+  .wall-card p{ margin:4px 0; color:var(--ink-soft); font-size:11.5px; }
+  .wall-card svg{ display:block; width:100%; height:auto; background:var(--surface-2); border-radius:var(--r-sm); }
+  .code-review{ padding:10px 12px; margin-bottom:12px; border-left:3px solid var(--accent); background:var(--accent-wash); }
+  .code-review p{ margin:4px 0; }
   .project-figure[hidden], .board-3d[hidden], #boardSum[hidden]{ display:none; }
   @media print{
     .project-reference > summary, .board-view, #boardTechnical, #boardSum{ display:none !important; }
@@ -944,7 +957,7 @@
     </div>
     <div>
       <p class="appheader__eyebrow">ENGENHARIA SANITÁRIA</p>
-      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.3.0</span></h1>
+      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.5.0</span></h1>
       <p class="appheader__sub">NBR 7229 · NBR 13969 · NBR 8160 · NBR 6118</p>
     </div>
   </div>
@@ -1068,9 +1081,32 @@
         </div>
       </div>
 
-      <div class="panel" id="advPanel">
-        <div class="panel__head"><h2>3 · Geometria do módulo padrão</h2><span class="hint">editável</span></div>
+      <section class="panel">
+        <div class="panel__head"><h2>NBR 17076 · parâmetros conferidos</h2></div>
         <div class="panel__body form-fields">
+          <p class="field-note">Informe os quatro valores conferidos na norma, no memorial e no ensaio de solo. Campos incompletos mantêm o cálculo histórico.</p>
+          <div class="field"><label class="field-label" for="nbrTFossa">T da fossa (dias)</label><input class="num" type="number" step="any" min="0.001" id="nbrTFossa"></div>
+          <div class="field"><label class="field-label" for="nbrK">Taxa K (dias)</label><input class="num" type="number" step="any" min="0" id="nbrK"></div>
+          <div class="field"><label class="field-label" for="nbrTFiltro">T do filtro (dias)</label><input class="num" type="number" step="any" min="0.001" id="nbrTFiltro"></div>
+          <div class="field"><label class="field-label" for="nbrInfiltracao">Taxa de aplicação (m³/m².dia)</label><input class="num" type="number" step="any" min="0.001" id="nbrInfiltracao"></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel__head"><h2>Levantamento de cotas</h2></div>
+        <div class="panel__body form-fields">
+          <p class="field-note">Use a geratriz inferior dos tubos e o mesmo referencial para todas as cotas.</p>
+          <div class="field"><label class="field-label" for="cotaTerreno">Terreno de referência (m)</label><input class="num" type="number" step="any" id="cotaTerreno"></div>
+          <div class="field"><label class="field-label" for="cotaSaidaFossa">Saída da fossa (m)</label><input class="num" type="number" step="any" id="cotaSaidaFossa"></div>
+          <div class="field"><label class="field-label" for="cotaEntradaFiltro">Entrada do filtro (m)</label><input class="num" type="number" step="any" id="cotaEntradaFiltro"></div>
+          <div class="field"><label class="field-label" for="cotaSaidaFiltro">Saída do filtro (m)</label><input class="num" type="number" step="any" id="cotaSaidaFiltro"></div>
+          <div class="field"><label class="field-label" for="cotaEntradaSumidouro">Entrada do sumidouro (m)</label><input class="num" type="number" step="any" id="cotaEntradaSumidouro"></div>
+          <div class="field"><label class="field-label" for="entradaFiltroAteBase">Distância da entrada do filtro à base (m)</label><input class="num" type="number" step="any" min="0" id="entradaFiltroAteBase"></div>
+        </div>
+      </section>
+      <div class="panel" id="advPanel">
+        <div class="panel__head"><h2>3 · Geometria e interligações</h2><span class="hint">editável</span></div>
+        <div class="panel__body form-fields">
+          <p class="field-note" id="geometryModeNote" hidden>O modo otimizado calcula os comprimentos e as alturas da fossa e do filtro. A largura comum e a altura do sumidouro são usadas nos dois modos.</p>
           <div class="field">
             <label class="field-label">Perfil de terreno — predefinições de dimensão</label>
             <p style="margin:0 0 10px;font-size:12px;color:var(--ink-faint);">Escolha o cenário mais próximo da situação do terreno para preencher automaticamente as dimensões abaixo — depois ajuste livremente se precisar. A quantidade de módulos necessária é recalculada para qualquer dimensão escolhida.</p>
@@ -1123,6 +1159,14 @@
             <input type="number" id="submersaoSaidaFrac" class="num" value="0.40" step="0.05" min="0.20" max="0.70">
             <span class="mono" style="display:block;text-align:right;font-size:11px;color:var(--ink-faint);margin-top:4px;">sugestão usual: 0,40 (evita saída de escuma; adotar entre 0,30–0,50)</span>
           </div>
+          <div class="field">
+            <label class="field-label" for="distFossaFiltro">Fossa → filtro · trecho horizontal (m)</label>
+            <input type="number" id="distFossaFiltro" class="num" value="1" step="0.1" min="0.1">
+          </div>
+          <div class="field">
+            <label class="field-label" for="distFiltroSumid">Filtro → sumidouro · trecho horizontal (m)</label>
+            <input type="number" id="distFiltroSumid" class="num" value="1" step="0.1" min="0.1">
+          </div>
         </div>
       </div>
 
@@ -1174,6 +1218,17 @@
             <input type="number" id="distArvore" class="num" step="0.5" min="0" placeholder="ex.: 5">
             <span class="field-note">mínimo NBR 7229 (6.1): 3,00 m</span>
           </div>
+          <div class="field">
+            <label class="field-label" for="dboProjeto">Carga orgânica do projeto (kg DBO/dia)</label>
+            <input type="number" id="dboProjeto" class="num" min="0" step="any" placeholder="Se disponível">
+          </div>
+          <div class="field">
+            <label class="field-label" for="criterioLocal">Orientação local para o sumidouro</label>
+            <select id="criterioLocal">
+              <option value="">Consultar o órgão local</option>
+              <option value="florianopolis">Florianópolis · OT 06/2026</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -1219,6 +1274,9 @@
         <div class="panel__head"><h2 id="resultsTitle">Memorial de cálculo</h2><span class="hint mono" id="catEcho"></span></div>
         <div class="panel__body">
           <div id="memorialSummary" class="result-summary" aria-label="Resumo do dimensionamento"></div>
+          <div id="codeReview" class="code-review"></div>
+          <div class="dashhead"><h3>Comparação de alternativas</h3></div>
+          <div id="modeComparison" class="tablewrap comparison"></div>
           <div class="dashhead"><h3>Composição das contribuições (N total)</h3></div>
           <div class="compbar" id="compBar"></div>
           <div class="complegend" id="compLegend"></div>
@@ -1291,7 +1349,10 @@
   <div id="viewProjeto" class="tabview" style="display:none;">
 
     <section class="panel">
-      <div class="panel__head"><h2>Prancheta dos módulos</h2></div>
+      <div class="panel__head"><h2>Prancheta dos módulos</h2><div class="three-controls">
+        <button class="btn small" id="exportPrancha" type="button">Exportar pranchas SVG</button>
+        <button class="btn small" id="previewPrancha" type="button">Prévia para PDF</button>
+      </div></div>
       <div class="panel__body">
         <div class="three-controls">
           <label class="field-label" for="projectThreeModule">Módulo</label>
@@ -1334,7 +1395,7 @@
     <div class="callout callout--info">
       <span class="callout__title">Alturas dos módulos — o que é norma e o que é decisão de projeto</span>
       <p>A NBR 7229 (Tabela 4) só fixa a <b>profundidade útil da fossa séptica</b>, por faixa de volume — até 6,0 m³: 1,2–2,2 m · 6,0–10,0 m³: 1,5–2,5 m · acima de 10,0 m³: 1,8–2,8 m (ver aba Tabelas). No modo "módulo único otimizado" este app adota a mesma altura para o filtro anaeróbio por simplificação de projeto, não por exigência normativa; a altura do sumidouro é livre — entra na fórmula de área de infiltração, não numa tabela de altura. No modo "módulo padrão de obra" (comp/H digitados manualmente) o app confere automaticamente a altura da fossa contra a Tabela 4 e avisa quando ela sai da faixa.</p>
-      <p>O desnível entre módulos, no corte abaixo, também tem duas origens diferentes: <b>Δh₁</b> (fossa → filtro) é geométrico — decorre da entrada afogada no fundo do filtro (fluxo ascendente), não de uma tabela; <b>Δh₂</b> (filtro → sumidouro) é declividade mínima de tubulação, calculada pela tabela de DN.</p>
+      <p>As quedas dos trechos retos usam as distâncias horizontais informadas e a declividade de referência do DN. A descida do dispositivo de entrada até o fundo do filtro aparece separadamente no esquema.</p>
     </div>
     </details>
 
@@ -1349,6 +1410,8 @@
       <div class="panel__head"><h2>Perfil longitudinal — sequência do tratamento</h2><span class="hint">fluxo e desnível mínimo entre módulos</span></div>
       <div class="panel__body" style="overflow-x:auto;">
         <div id="perfilLongWrap" class="proj-overview"></div>
+        <div id="processCotas" class="tablewrap process-cotas"></div>
+        <div id="excavationLevels" class="tablewrap process-cotas"></div>
       </div>
     </div>
 
@@ -1430,14 +1493,30 @@
       <div class="panel__head"><h2>Empuxo e esforços do sumidouro</h2></div>
       <div class="panel__body">
         <div class="force-inputs">
-          <label>Coeficiente de empuxo Kₐ<input id="forceKa" class="num" type="number" min="0" step="any"></label>
-          <label>Peso específico do solo γ (kN/m³)<input id="forceSoilWeight" class="num" type="number" min="0" step="any"></label>
-          <label>Sobrecarga q (kN/m²)<input id="forceSurcharge" class="num" type="number" min="0" step="any"></label>
+          <label>Coeficiente lateral adotado K<input id="forceKa" class="num" type="number" min="0" step="any"></label>
+          <label>Peso específico acima do lençol (kN/m³)<input id="forceSoilWeight" class="num" type="number" min="0" step="any"></label>
+          <label>Sobrecarga comum q (kN/m²)<input id="forceSurcharge" class="num" type="number" min="0" step="any"></label>
+          <label>Profundidade do lençol a partir do topo (m)<input id="forceWaterDepth" class="num" type="number" min="0" step="any" placeholder="Sem água neste cenário"></label>
+          <label>Peso específico saturado (kN/m³)<input id="forceSaturatedWeight" class="num" type="number" min="9.81" step="any"></label>
           <label>Folga acima da altura útil (m)<input id="forceClearance" class="num" type="number" min="0" step="any"></label>
           <label>Faixa de influência (m)<input id="forceInfluence" class="num" type="number" min="0.01" step="any"></label>
           <label>Fator de majoração γf<input id="forceFactor" class="num" type="number" min="1" step="any"></label>
           <label>Momento máximo do modelo (kN·m)<input id="forceMoment" class="num" type="number" min="0" step="any"></label>
           <label>Cortante máximo do modelo (kN)<input id="forceShear" class="num" type="number" min="0" step="any"></label>
+          <label>Sobrecarga P1 (kN/m²)<input id="forceQ1" class="num" type="number" min="0" step="any" placeholder="Usa q comum"></label>
+          <label>Sobrecarga P2 (kN/m²)<input id="forceQ2" class="num" type="number" min="0" step="any" placeholder="Usa q comum"></label>
+          <label>Sobrecarga P3 (kN/m²)<input id="forceQ3" class="num" type="number" min="0" step="any" placeholder="Usa q comum"></label>
+          <label>Sobrecarga P4 (kN/m²)<input id="forceQ4" class="num" type="number" min="0" step="any" placeholder="Usa q comum"></label>
+        </div>
+        <div class="force-inputs">
+          <label for="forceWall">Parede no desenho detalhado
+            <select id="forceWall">
+              <option value="0">P1 · longitudinal</option>
+              <option value="1">P2 · transversal</option>
+              <option value="2">P3 · longitudinal oposta</option>
+              <option value="3">P4 · transversal oposta</option>
+            </select>
+          </label>
         </div>
         <div class="three-controls">
           <button class="btn small" type="button" data-view-action="left" aria-label="Girar para a esquerda">↶</button>
@@ -1448,7 +1527,7 @@
           <button class="btn small" type="button" data-view-action="home">Vista inicial</button>
         </div>
         <div id="forceThree" class="three-stage"></div>
-        <p class="three-caption">As setas laranja mostram a pressão do solo p(z) = Kₐ(γz + q). A seta azul marca a linha de ação da força resultante na faixa de influência. A altura carregada soma a altura útil à folga.</p>
+        <p class="three-caption">As setas laranja indicam a pressão externa total. A seta azul indica a resultante na faixa analisada. A altura carregada soma a altura útil à folga.</p>
         <p id="forceThreeParams" class="three-caption"></p>
         <dl id="forceThreeSummary" class="force-summary" aria-live="polite">
           <div><dt>Altura carregada</dt><dd data-force="height">—</dd></div>
@@ -1460,7 +1539,27 @@
           <div><dt>Momento majorado Mᵈ</dt><dd data-force="moment">—</dd></div>
           <div><dt>Cortante majorado Vᵈ</dt><dd data-force="shear">—</dd></div>
         </dl>
-        <p class="three-caption">Parâmetros iniciais das abas Dados e Esforcos da planilha do sumidouro. Informe os máximos do modelo estrutural para aplicar γf. O esquema representa o empuxo lateral do solo.</p>
+        <p class="three-caption">Caso de carga externo com interior sem contrapressão. Confirme K, sobrecarga e nível d’água com a sondagem e as condições de apoio. Os máximos informados do modelo estrutural são exibidos separadamente.</p>
+        <h3>Elevações e esforços das quatro paredes</h3>
+        <p class="three-caption">P1 e P3 são longitudinais. P2 e P4 são transversais. Os diagramas V e M representam uma faixa vertical de 1 m em balanço, engastada na base e livre no topo.</p>
+        <div id="forceWalls" class="wall-grid"></div>
+        <h3>Verificação da faixa de 1 m por cenário</h3>
+        <div class="force-inputs">
+          <label>Condição de apoio<select id="wallSupport">
+            <option value="balanco">Engastada na base · topo livre</option>
+            <option value="biapoiada">Biapoiada · base e topo</option>
+          </select></label>
+          <label>Vᵣd (kN/m)<input id="wallResistanceV" class="num" type="number" min="0" step="any" placeholder="Do projeto estrutural"></label>
+          <label>Mᵣd (kN·m/m)<input id="wallResistanceM" class="num" type="number" min="0" step="any" placeholder="Do projeto estrutural"></label>
+          <label>Sobrecarga adicional (kN/m²)<input id="wallExtraQ" class="num" type="number" min="0" step="any" placeholder="Para cenário adicional"></label>
+        </div>
+        <p class="three-caption">A verificação usa o apoio selecionado e o fator γf informado. Use resistências de cálculo para essa mesma condição de apoio.</p>
+        <div id="wallScenarios" class="tablewrap"></div>
+        <details class="project-reference">
+          <summary>Base técnica do empuxo</summary>
+          <p>Modelo de solo homogêneo com sobrecarga uniforme. Abaixo do lençol, a tensão efetiva usa o peso submerso e a pressão da água é somada separadamente. Os esforços de pórtico, as combinações, a estabilidade e a armadura dependem do modelo estrutural e das condições de apoio.</p>
+          <p>Referências de projeto: ABNT NBR 6118 para estruturas de concreto, ABNT NBR 8681 para ações e segurança nas estruturas e <a href="https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-manuais/vigentes/724_manual_drenagem_rodovias.pdf" target="_blank" rel="noopener">Manual de Drenagem do DNIT</a> para a consideração da água no empuxo.</p>
+        </details>
       </div>
     </section>
   </div>
@@ -1589,7 +1688,7 @@
           </div>
           <div class="callout callout--info" style="margin-top:12px;margin-bottom:0;">
             <span class="callout__title">Critério das estimativas</span>
-            Estimativas por geometria (sem perdas de material) — brita do filtro e do sumidouro = volume interno da câmara (meio filtrante/drenante enche todo o volume útil); reaterro compactado = escavação − volume enterrado da caixa; argamassa (assentamento + reboco nas duas faces) estimada por área de alvenaria; impermeabilização aplicada nas paredes externas em contato com o solo (tipo asfáltica/manta, a especificar em projeto). Tubulação de interligação considera 2 trechos (fossa→filtro e filtro→sumidouro) de 1,0 m — mesmo afastamento padrão da planta de locação; ajustar se os módulos não forem contíguos.
+            Estimativas por geometria (sem perdas de material) — brita do filtro e do sumidouro = volume interno da câmara (meio filtrante/drenante enche todo o volume útil); reaterro compactado = escavação − volume enterrado da caixa; argamassa (assentamento + reboco nas duas faces) estimada por área de alvenaria; impermeabilização aplicada nas paredes externas em contato com o solo (tipo asfáltica/manta, a especificar em projeto). Tubulação de interligação estimada pelos dois trechos retos e pela declividade de referência do DN. Curvas, subidas e descidas internas são detalhadas à parte.
           </div>
         </div>
       </div>
@@ -1829,8 +1928,11 @@
   var lastReportCtx = null;
   var forceInputs = {
     forceKa: 1/3, forceSoilWeight: 18, forceSurcharge: 5, forceClearance: 0.40,
-    forceInfluence: 1.50, forceFactor: 1.4, forceMoment: null, forceShear: null
+    forceInfluence: 1.50, forceFactor: 1.4, forceMoment: null, forceShear: null,
+    forceWaterDepth:null, forceSaturatedWeight:20, forceQ1:null, forceQ2:null, forceQ3:null, forceQ4:null,
+    wallResistanceV:null, wallResistanceM:null, wallExtraQ:null
   };
+  var projectInputs = ["nbrTFossa","nbrK","nbrTFiltro","nbrInfiltracao","cotaTerreno","cotaSaidaFossa","cotaEntradaFiltro","cotaSaidaFiltro","cotaEntradaSumidouro","entradaFiltroAteBase"];
 
   /* ============ TOAST / CONFIRMAÇÃO / SALVAMENTO ============ */
   function showToast(msg, type, title){
@@ -1938,6 +2040,10 @@
     distPoco: null,
     distEdif: null,
     distArvore: null,
+    distFossaFiltro: 1,
+    distFiltroSumid: 1,
+    dboProjeto: null,
+    criterioLocal: "",
     precoConcreto: 877.24,
     precoAlvenaria: 50.54,
     precoForma: 125.45,
@@ -1970,6 +2076,8 @@
     responsavelTecnico: ""
   };
   Object.assign(state, forceInputs);
+  projectInputs.forEach(function(id){ state[id]=null; });
+  state.wallSupport="balanco";
   var DEFAULT_STATE = JSON.parse(JSON.stringify(state));
 
   /* ============ PROJETOS (multi-projeto) ============ */
@@ -2406,6 +2514,11 @@
 
   /* ============ CALC + RENDER ============ */
   function readInputsIntoState(){
+    projectInputs.forEach(function(id){
+      var input=el(id), value=input.valueAsNumber;
+      state[id]=Number.isFinite(value) && (!input.min || value>=Number(input.min)) ? value : null;
+    });
+    state.wallSupport=el("wallSupport").value;
     Object.keys(forceInputs).forEach(function(id){
       var input = el(id);
       var value = input.valueAsNumber;
@@ -2431,6 +2544,10 @@
     state.taxaArmadura = numOr("taxaArmadura", 60, 0);
     state.espLaje = numOr("espLaje", 0.12, 0.03);
     state.wallThickness = numOr("wallThickness", 0.20, 0.10);
+    state.distFossaFiltro = numOr("distFossaFiltro", 1, 0.1);
+    state.distFiltroSumid = numOr("distFiltroSumid", 1, 0.1);
+    state.dboProjeto = el("dboProjeto").valueAsNumber >= 0 ? el("dboProjeto").valueAsNumber : null;
+    state.criterioLocal = el("criterioLocal").value;
     state.dnTubulacao = parseInt(el("dnTubulacao").value||"100",10);
     state.submersaoEntrada = numOr("submersaoEntrada", 0.10, 0.05);
     state.submersaoSaidaFrac = numOr("submersaoSaidaFrac", 0.40, 0.20);
@@ -2457,26 +2574,49 @@
   var interpTaxa = _C_.interpTaxa;
 
   function checkDistances(){
-    var warnings = [];
-    if (state.lencolProf !== null && !isNaN(state.lencolProf) && state.lencolProf < 1.5){
-      warnings.push("Fundo do sumidouro a apenas "+fmt(state.lencolProf,1)+" m do lençol freático — referência usual exige mínimo de 1,5 m.");
-    }
-    if (state.distPoco !== null && !isNaN(state.distPoco) && state.distPoco < 15){
-      warnings.push("Distância ao poço de captação de "+fmt(state.distPoco,1)+" m — referência usual exige mínimo de 15 m.");
-    }
-    if (state.distEdif !== null && !isNaN(state.distEdif) && state.distEdif < 1.5){
-      warnings.push("Distância à edificação/divisa de "+fmt(state.distEdif,1)+" m — NBR 7229 (6.1) exige mínimo de 1,50 m.");
-    }
-    if (state.distArvore !== null && !isNaN(state.distArvore) && state.distArvore < 3){
-      warnings.push("Distância a árvores / rede pública de água de "+fmt(state.distArvore,1)+" m — NBR 7229 (6.1) exige mínimo de 3,00 m.");
-    }
-    return warnings;
+    var limits = [
+      ["lencolProf", 1.5, "Lençol freático", "referência usual"],
+      ["distPoco", 15, "Poço de captação", "referência usual"],
+      ["distEdif", 1.5, "Edificação/divisa", "NBR 7229 (6.1)"],
+      ["distArvore", 3, "Árvores/rede pública de água", "NBR 7229 (6.1)"]
+    ];
+    return limits.filter(function(limit){
+      return Number.isFinite(state[limit[0]]) && state[limit[0]] < limit[1];
+    }).map(function(limit){
+      return { field:limit[0], message:limit[2]+": "+fmt(state[limit[0]],2)+" m medidos. Referência mínima de "
+        +fmt(limit[1],2)+" m ("+limit[3]+")." };
+    });
+  }
+
+  function renderFieldIssues(issues){
+    document.querySelectorAll(".field-issue").forEach(function(note){
+      var input = el(note.dataset.input);
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("aria-describedby");
+      note.remove();
+    });
+    var grouped = new Map();
+    issues.forEach(function(issue){
+      if (!grouped.has(issue.field)) grouped.set(issue.field,[]);
+      grouped.get(issue.field).push(issue.message);
+    });
+    grouped.forEach(function(messages,field){
+      var input = el(field);
+      var note = document.createElement("span");
+      note.id = field+"Issue";
+      note.className = "field-issue";
+      note.dataset.input = field;
+      note.textContent = messages.join(" ");
+      input.closest(".field, td").appendChild(note);
+      input.setAttribute("aria-invalid","true");
+      input.setAttribute("aria-describedby",note.id);
+    });
   }
 
   /* Tabela 4 da NBR 7229 fixa a faixa de profundidade útil da fossa séptica por
    * faixa de volume. No modo "módulo padrão" a altura é digitada pelo projetista —
    * aqui ela é conferida contra a faixa e o desvio é avisado. */
-  function checkProfundidadeFossa(results, VminFossa){
+  function checkProfundidadeFossa(results){
     var Hu = results.fossa.dims[2];
     var volModuloM3 = (results.fossa.dims[0]*results.fossa.dims[1]*Hu);
     var faixa = _C_.lookupProf(volModuloM3);
@@ -2530,6 +2670,8 @@
   }
 
   function applyStateToInputs(){
+    projectInputs.forEach(function(id){ el(id).value=state[id] ?? ""; });
+    el("wallSupport").value=state.wallSupport==="biapoiada" ? "biapoiada" : "balanco";
     Object.keys(forceInputs).forEach(function(id){ el(id).value = state[id] ?? ""; });
     el("largPadrao").value = state.larg;
     el("fossaComp").value = state.fossa.comp;
@@ -2550,6 +2692,10 @@
     el("taxaArmadura").value = state.taxaArmadura;
     el("espLaje").value = state.espLaje;
     el("wallThickness").value = state.wallThickness;
+    el("distFossaFiltro").value = state.distFossaFiltro;
+    el("distFiltroSumid").value = state.distFiltroSumid;
+    el("dboProjeto").value = state.dboProjeto ?? "";
+    el("criterioLocal").value = state.criterioLocal || "";
     el("dnTubulacao").value = state.dnTubulacao;
     el("submersaoEntrada").value = state.submersaoEntrada;
     el("submersaoSaidaFrac").value = state.submersaoSaidaFrac;
@@ -2590,7 +2736,7 @@
     el("cgRefeicoesField").style.display = state.cgNum > 12 ? "" : "none";
     el("modePadrao").setAttribute("aria-pressed", state.mode === "padrao" ? "true":"false");
     el("modeUnico").setAttribute("aria-pressed", state.mode === "unico" ? "true":"false");
-    el("advPanel").style.display = state.mode === "padrao" ? "" : "none";
+    el("geometryModeNote").hidden = state.mode === "padrao";
     el("numSumUnitsField").style.display = state.mode === "unico" ? "" : "none";
   }
 
@@ -2598,12 +2744,22 @@
     readInputsIntoState();
 
     // núcleo de cálculo (fórmulas NBR 7229/13969/8160) — função pura testada em js/calc.js
-    var out = _C_.dimensionar({
+    var input = {
       contribs: state.contribs, intervaloIdx: state.intervaloIdx, taxaIdx: state.taxaIdx, percMedido: state.percMedido,
       tfiltroAuto: state.tfiltroAuto, tfiltroManual: state.tfiltroManual, mode: state.mode, larg: state.larg,
       fossa: state.fossa, filtro: state.filtro, sumid: state.sumid, numSumUnits: state.numSumUnits,
       cgEnabled: state.cgEnabled, cgNum: state.cgNum, cgRefeicoes: state.cgRefeicoes,
       tempIdx: state.tempIdx, contarFundoSumidouro: state.contarFundoSumidouro
+    };
+    if(projectInputs.slice(0,4).every(function(id){return Number.isFinite(state[id]);})){
+      input.parametrosVerificados={tFossa:state.nbrTFossa,k:state.nbrK,tFiltro:state.nbrTFiltro,infiltracao:state.nbrInfiltracao};
+    }
+    var out = _C_.dimensionar(input);
+    var interligacoes = _C_.calcularInterligacoes(state.dnTubulacao, state.distFossaFiltro, state.distFiltroSumid);
+    var niveis = _C_.perfilComCotas(interligacoes,{
+      terreno:state.cotaTerreno, saidaFossa:state.cotaSaidaFossa, entradaFiltro:state.cotaEntradaFiltro,
+      saidaFiltro:state.cotaSaidaFiltro, entradaSumidouro:state.cotaEntradaSumidouro,
+      entradaFiltroAteBase:state.entradaFiltroAteBase, alturaFossa:out.results.fossa.dims[2], alturaSumidouro:out.results.sumid.dims[2]
     });
     var K = out.K, taxa = out.taxa, sumN = out.sumN, sumVazao = out.sumVazao;
     var VminFossa = out.VminFossa, VminFiltro = out.VminFiltro, Amin = out.Amin;
@@ -2625,11 +2781,14 @@
     el("statVfossa").innerHTML = fmt(VminFossa) + '<span class="unit">L · '+fmt(VminFossa/1000,2)+' m³</span>';
     el("statVfiltro").innerHTML = fmt(VminFiltro) + '<span class="unit">L · '+fmt(VminFiltro/1000,2)+' m³</span>';
     el("statAsum").innerHTML = fmt(Amin,1) + '<span class="unit">m²</span>';
-    el("statTfiltro").innerHTML = (state.tfiltroAuto ? "auto" : fmt(state.tfiltroManual,2)) + '<span class="unit">dias</span>';
-    el("statK").innerHTML = fmt(K) + '<span class="unit">dias · ' + TEMP_FAIXAS[state.tempIdx].curto + '</span>';
+    el("statTfiltro").innerHTML = (input.parametrosVerificados ? fmt(state.nbrTFiltro,3) : state.tfiltroAuto ? "auto" : fmt(state.tfiltroManual,2)) + '<span class="unit">dias</span>';
+    el("statK").innerHTML = fmt(K,input.parametrosVerificados ? 2 : 0) + '<span class="unit">dias · ' + (input.parametrosVerificados ? "informado" : TEMP_FAIXAS[state.tempIdx].curto) + '</span>';
     el("statModo").textContent = state.mode === "padrao" ? "Módulo padrão" : "Módulo único";
 
     renderMemorialSummary(out);
+    var otherMode = state.mode === "padrao" ? "unico" : "padrao";
+    var other = _C_.dimensionar(Object.assign({}, input, { mode:otherMode }));
+    renderModeComparison(state.mode === "padrao" ? out : other, state.mode === "padrao" ? other : out);
     renderUnits(results, state.mode === "padrao");
     renderCG(cg);
     renderCompBar(contribDetails, sumN);
@@ -2639,11 +2798,11 @@
       K:K, taxa:taxa, sumN:sumN, sumVazao:sumVazao, VminFossa:VminFossa, VminFiltro:VminFiltro, Amin:Amin,
       contribDetails:contribDetails, modeDetails:modeDetails, results:results, cg:cg,
       VminFiltroCalc:out.VminFiltroCalc, filtroPisoAplicado:out.filtroPisoAplicado,
-      contarFundoSumidouro:out.contarFundoSumidouro
+      contarFundoSumidouro:out.contarFundoSumidouro, parametrosVerificados:input.parametrosVerificados
     });
 
     var qtdResult = renderQuantitativos(results, cg);
-    renderMaterialExec(results);
+    renderMaterialExec(results, interligacoes);
     var materiaisResult = computeMateriais(results);
     renderMateriais(results, qtdResult, materiaisResult);
     renderNormas();
@@ -2660,27 +2819,46 @@
     }
     el("specBox").innerHTML = specTxt;
 
-    var distWarnings = checkDistances();
-    var avisoProf = checkProfundidadeFossa(results, VminFossa);
-    if (avisoProf) distWarnings = distWarnings.concat([avisoProf]);
+    var issues = checkDistances();
+    niveis.trechos.forEach(function(t,i){
+      if(t.atende===false) issues.push({ field:i===0?"cotaEntradaFiltro":"cotaEntradaSumidouro",
+        message:"Queda observada de "+fmt(t.queda,3)+" m. Para a declividade adotada, a entrada deve ficar na cota "+fmt(t.maximo,3)+" m ou abaixo." });
+    });
+    var scope = _C_.avaliarEscopo17076(sumVazao,state.dboProjeto);
+    var codeReview = renderCodeReview(scope,out,issues,input.parametrosVerificados);
+    var avisoProf = checkProfundidadeFossa(results);
+    if (avisoProf) issues.push({ field:state.mode === "padrao" ? "fossaH" : "largPadrao", message:avisoProf });
+    if (state.mode === "padrao" && results.fossa.vol <= 1000){
+      issues.push({ field:"fossaComp", message:"Volume unitário de "+fmt(results.fossa.vol,0)+" L. Aumente o módulo para superar a parcela fixa de 1.000 L da fórmula da fossa." });
+    }
+    if (state.mode === "padrao" && results.filtro.vol < FILTRO_VOL_MIN_L - 1e-6){
+      issues.push({ field:"filtroComp", message:"Volume unitário de "+fmt(results.filtro.vol,0)+" L. Revise as dimensões do módulo frente ao piso adotado de "+fmt(FILTRO_VOL_MIN_L,0)+" L." });
+    }
+    if (out.infiltracao.saldo < -0.001){
+      issues.push({ field:state.mode === "padrao" ? "sumComp" : "numSumUnitsInput",
+        message:"Déficit de infiltração de "+fmt(-out.infiltracao.saldo,1)+" L/dia. Capacidade estimada "
+          +fmt(out.infiltracao.capacidade,1)+" L/dia para uma vazão de "+fmt(out.infiltracao.demanda,1)+" L/dia." });
+    }
+    renderFieldIssues(issues);
+    var distWarnings = issues.map(function(issue){ return issue.message; });
     var distEl = el("distCallout");
     if (distWarnings.length){
       distEl.style.display = "";
-      distEl.innerHTML = "<span class=\"callout__title\">Verificações normativas de campo</span><b>Atenção:</b><ul class=\"obs-list\" style=\"margin-top:6px;\">"
-        + distWarnings.map(function(w){ return "<li>"+w+"</li>"; }).join("")
+      distEl.innerHTML = "<span class=\"callout__title\">Campos que precisam de revisão</span><ul class=\"obs-list\" style=\"margin-top:6px;\">"
+        + issues.map(function(issue){ return '<li>'+issue.message+' <button class="btn small" type="button" data-field-target="'+issue.field+'">Ver campo</button></li>'; }).join("")
         + "</ul>";
     } else {
       distEl.style.display = "none";
       distEl.innerHTML = "";
     }
 
-    renderProjeto(results, cg, out.infiltracao);
+    renderProjeto(results, cg, out.infiltracao, interligacoes, niveis);
 
     var reportCtx = {
       K:K, taxa:taxa, sumN:sumN, sumVazao:sumVazao,
       VminFossa:VminFossa, VminFiltro:VminFiltro, Amin:Amin,
       results:results, cg:cg, qtdResult:qtdResult,
-      distWarnings:distWarnings, specTxt:specTxt
+      distWarnings:distWarnings, specTxt:specTxt, codeReview:codeReview
     };
     renderReport(reportCtx);
     lastReportCtx = reportCtx;
@@ -2820,15 +2998,14 @@
     return { volEscavacao:volEscavacao, reaterro:reaterro, volBrita:volBrita, argamassa:argamassa, impermeabilizacao:impermeabilizacao, tampa:1 };
   }
 
-  function renderMaterialExec(r){
+  function renderMaterialExec(r, interligacoes){
     var eFossa = estimateExecucaoModulo(r.fossa.dims[0], r.fossa.dims[1], r.fossa.dims[2], true, "fossa");
     var eFiltro = estimateExecucaoModulo(r.filtro.dims[0], r.filtro.dims[1], r.filtro.dims[2], true, "filtro");
     var eSum = estimateExecucaoModulo(r.sumid.dims[0], r.sumid.dims[1], r.sumid.dims[2], false, "sumidouro");
     var qF = r.fossa.qty, qFi = r.filtro.qty, qS = r.sumid.qty;
 
-    // tubulação de interligação: 2 trechos (fossa→filtro, filtro→sumidouro), 1,0 m cada
-    // (mesmo afastamento padrão usado na planta de locação) + 2 conexões/curvas por trecho.
-    var tuboInterligM = 2 * 1.0;
+    // Comprimento inclinado dos trechos retos. As conexões são estimadas à parte.
+    var tuboInterligM = interligacoes.tubo;
     var conexoes = 2 * 2;
 
     function row(label, unid, vF, vFi, vS){
@@ -2851,7 +3028,7 @@
     }).join("");
   }
 
-  function renderQuantitativos(r, cg){
+  function quantRows(r, cg){
     var rows = [];
     var qFossa = estimateQuant(r.fossa.dims[0], r.fossa.dims[1], r.fossa.dims[2], true);
     var qFiltro = estimateQuant(r.filtro.dims[0], r.filtro.dims[1], r.filtro.dims[2], true);
@@ -2866,6 +3043,11 @@
       rows.push({ nome:"Caixa de gordura ("+cg.spec.tipo.split(" —")[0]+")", qtd:1, q:qCG, cvar:"--cg" });
     }
 
+    return rows;
+  }
+
+  function renderQuantitativos(r, cg){
+    var rows = quantRows(r, cg);
     var totalConcreto=0, totalAlv=0, totalForma=0, totalAco=0, totalCusto=0;
     var html = rows.map(function(row){
       var concreto = row.q.volConcreto*row.qtd;
@@ -3091,9 +3273,10 @@
 
   function renderCalcMemoria(ctx){
     var html = "";
+    var verified = ctx.parametrosVerificados;
 
     html += '<div class="calcstep">'
-      + '<div class="calcstep__head"><h4>1 · Vazão e termos por contribuição</h4><span class="fonte-tag">Tabelas 1 e 2 — NBR 7229</span></div>'
+      + '<div class="calcstep__head"><h4>1 · Vazão e termos por contribuição</h4><span class="fonte-tag">'+(verified?"T informado · contribuições da base histórica":"Tabelas 1 e 2 — NBR 7229")+'</span></div>'
       + '<div class="tablewrap" style="margin:8px 0 0;"><table style="min-width:820px;table-layout:fixed;">'
       + '<colgroup><col style="width:15%;"><col style="width:9%;"><col style="width:8%;"><col style="width:8%;"><col style="width:14%;"><col style="width:8%;"><col style="width:8%;"><col style="width:15%;"><col style="width:15%;"></colgroup>'
       + '<thead><tr>'
@@ -3111,10 +3294,12 @@
             + '<td class="num">'+fmt(c.termoFiltro)+'</td></tr>';
         }).join("")
       + '</tbody></table></div>'
-      + '<div class="calcstep__extra">T fossa/filtro obtido pela Tabela 2 (NBR 7229) a partir da vazão de cada contribuição'+(state.tfiltroAuto?'':'; T do filtro adotado manualmente = '+fmt(state.tfiltroManual,2)+' dias')+'.</div>'
+      + '<div class="calcstep__extra">'+(verified?"Tempos de detenção informados no painel de parâmetros conferidos.":"Tempos de detenção da base histórica ou T manual do filtro.")+'</div>'
       + '</div>';
 
-    html += calcBlock("2 · Taxa de acumulação de lodo (K)", "Tabela 3 — NBR 7229",
+    if(verified) html += calcBlock("2 · Taxa de acumulação de lodo (K)", "Parâmetro informado","K adotado no projeto",
+      "K = "+fmt(ctx.K,2)+" dias","Valor informado em Dados de entrada.");
+    else html += calcBlock("2 · Taxa de acumulação de lodo (K)", "Tabela 3 — NBR 7229",
       "K = f(intervalo entre limpezas; temperatura média do mês mais frio)",
       "K = " + fmt(ctx.K) + " dias",
       "Intervalo adotado: " + (TABELA3[state.intervaloIdx].anos) + " ano" + (TABELA3[state.intervaloIdx].anos>1?"s":"")
@@ -3122,11 +3307,11 @@
         + ". A Tabela 3 traz um K por faixa de temperatura — nesta linha os valores são "
         + TABELA3[state.intervaloIdx].Kt.join(" / ") + " dias (do mais frio para o mais quente).");
 
-    var taxaFonte = (state.percMedido && state.percMedido>0) ? "Interpolado — NBR 13969 (tabela de percolação)" : "Tabela — NBR 13969 (taxa de percolação)";
+    var taxaFonte = verified ? "Ensaio informado" : (state.percMedido && state.percMedido>0) ? "Interpolado — NBR 13969 (tabela de percolação)" : "Tabela — NBR 13969 (taxa de percolação)";
     html += calcBlock("3 · Taxa de aplicação no solo", taxaFonte,
       "Taxa conforme ensaio de percolação do solo",
       "taxa = " + ctx.taxa.toFixed(3) + " m³/m².dia",
-      state.percMedido ? ("Interpolada a partir de "+state.percMedido+" min/m medido em campo.") : "Selecionada a partir do ensaio de percolação informado.");
+      verified ? "Taxa de aplicação informada em Dados de entrada." : state.percMedido ? ("Interpolada a partir de "+state.percMedido+" min/m medido em campo.") : "Selecionada a partir da tabela histórica.");
 
     html += calcBlock("4 · Volume mínimo — fossa séptica", "NBR 7229 — fórmula do volume útil",
       "V = 1000 + Σ Ni·(Ci·Ti + K·Lfi)",
@@ -3158,7 +3343,7 @@
       html += calcBlock("7b · Capacidade do módulo — filtro", "Cálculo do app (geometria informada)",
         "cap = Vol.módulo / (1,6 × peso médio C×T por N)",
         "cap = " + fmt(md.volFiltroMod) + " / (1,6 × " + fmt(md.wFiltroC_T,2) + ") = " + fmt(md.capFiltroMod) + " N-equiv.",
-        "Quantidade de módulos: ⌈" + fmt(ctx.sumN) + " / " + fmt(md.capFiltroMod) + "⌉ = <b>" + md.qtyFiltro + "×</b>");
+        "Quantidade de módulos: ⌈" + fmt(ctx.VminFiltro) + " L / " + fmt(md.volFiltroMod) + " L⌉ = <b>" + md.qtyFiltro + "×</b>");
       html += calcBlock("7c · Capacidade do módulo — sumidouro", "Cálculo do app (geometria informada)",
         "cap = (área do módulo × taxa × 1000) / C médio por N",
         "cap = (" + fmt(md.areaSumMod,2) + " × " + ctx.taxa.toFixed(3) + " × 1000) / " + fmt(md.wC,2) + " = " + fmt(md.capSumMod) + " N-equiv.",
@@ -3167,7 +3352,7 @@
       html += '<div class="calcstep__section">7 · Módulo único otimizado — dimensões derivadas dos volumes/área mínimos calculados acima</div>';
       html += calcBlock("7a · Profundidade útil — fossa/filtro", "Tabela 4 — NBR 7229",
         "Faixa de profundidade útil conforme volume da fossa",
-        "Vol.fossa = " + fmt(ctx.VminFossa/1000,2) + " m³ → faixa " + md.profFossa.min.toFixed(1) + "–" + md.profFossa.max.toFixed(1) + " m → Hu adotado = <b>" + md.HuFossa.toFixed(2) + " m</b> (média da faixa)",
+        "Volume adotado = " + fmt(md.volFossaFinal/1000,2) + " m³ → faixa " + fmt(md.profFossa.min,1) + "–" + fmt(md.profFossa.max,1) + " m → Hu adotado = <b>" + fmt(md.HuFossa,2) + " m</b>",
         "Aplicado também ao filtro anaeróbio (simplificação de projeto do app — a Tabela 4 é normativa para a fossa; ver observações).");
       html += calcBlock("7b · Comprimento — fossa séptica", "Cálculo do app (geometria)",
         "comp = Vmin / (larg × Hu × 1000), arredondado para 0,1 m acima",
@@ -3204,13 +3389,14 @@
       + (originY == null ? "" : '<path d="M'+x1+' '+(originY+3)+'V'+(y+4)+' M'+x2+' '+(originY+3)+'V'+(y+4)+'" fill="none" stroke="var(--ink-faint)" stroke-width=".55"/>')
       + svgText((x1+x2)/2, y-6, label, "--ink", 9, "middle", 700);
   }
-  function dimV(y1,y2,x,label){
+  function dimV(y1,y2,x,label,originX){
     var midy = (y1+y2)/2, a = Math.min(3.2, (y2-y1)/5);
     return '<line x1="'+x+'" y1="'+y1+'" x2="'+x+'" y2="'+y2+'" stroke="var(--ink-faint)" stroke-width="0.9"/>'
       + '<line x1="'+(x-4)+'" y1="'+y1+'" x2="'+(x+4)+'" y2="'+y1+'" stroke="var(--ink-faint)" stroke-width="0.9"/>'
       + '<line x1="'+(x-4)+'" y1="'+y2+'" x2="'+(x+4)+'" y2="'+y2+'" stroke="var(--ink-faint)" stroke-width="0.9"/>'
       + '<polygon points="'+(x-a)+','+(y1+a*2)+' '+x+','+y1+' '+(x+a)+','+(y1+a*2)+'" fill="var(--ink-faint)"/>'
       + '<polygon points="'+(x-a)+','+(y2-a*2)+' '+x+','+y2+' '+(x+a)+','+(y2-a*2)+'" fill="var(--ink-faint)"/>'
+      + (originX == null ? "" : '<path d="M'+(x-3)+' '+y1+'H'+(originX-3)+' M'+(x-3)+' '+y2+'H'+(originX-3)+'" fill="none" stroke="var(--ink-faint)" stroke-width=".55"/>')
       + '<g transform="rotate(-90 '+(x-9)+' '+midy+')">'+svgText(x-9, midy, label, "--ink", 9, "middle", 700)+'</g>';
   }
   function seededRand(seed){ var s = Math.sin(seed)*10000; return s-Math.floor(s); }
@@ -3400,7 +3586,7 @@
       s += svgText(x+rw, y-10, qty+'× módulos', kindColorVar(kind), 8.5, 'end', 700);
     }
     s += dimH(x, x+rw, y+rh+26, fmt(comp,2)+' m', y+rh);
-    s += dimV(y, y+rh, x-46, fmt(larg,2)+' m');
+    s += dimV(y, y+rh, x-46, fmt(larg,2)+' m', x);
     s+='</svg>';
     return s;
   }
@@ -3563,7 +3749,7 @@
 
     // cotas
     s+=dimH(x, x+rw, radY+lajeH+(kind==="sumidouro"?30:22), fmt(comp,2)+' m', radY+lajeH);
-    s+=dimV(bodyY, radY, x-26, 'H = '+fmt(H,2)+' m');
+    s+=dimV(bodyY, radY, x-26, 'H = '+fmt(H,2)+' m', x);
 
     // coluna de chamadas — última camada, sempre na margem livre à direita
     s+='<line x1="'+(noteColX-4)+'" y1="'+(padTop-8)+'" x2="'+(noteColX-4)+'" y2="'+(Hc-42)+'" stroke="var(--line)" stroke-width="0.8"/>';
@@ -3573,26 +3759,27 @@
   }
 
   // Planta de locação: as unidades desenhadas na mesma escala relativa entre si,
-  // com afastamento padrão de 1,0 m entre elas (linha de tubulação), e círculos
+  // com os afastamentos adotados para as interligações, e círculos
   // tracejados mostrando o raio das distâncias mínimas a poço/edificação em torno
   // do sumidouro — usando os valores medidos em campo informados na aba Dados de
   // entrada (ou a referência normativa, quando não informados).
-  function plantaLocacaoSVG(r, cg){
-    var GAP = 1.0;
+  function plantaLocacaoSVG(r, cg, interligacoes){
+    var gaps = interligacoes.trechos.map(function(t){ return t.comprimento; });
+    if (cg) gaps.unshift(1);
     var units = [];
     if (cg) units.push({ label:"CG", kind:"cg", dims:cg.dims, qty:1 });
     units.push({ label:"Fossa", kind:"fossa", dims:r.fossa.dims, qty:r.fossa.qty });
     units.push({ label:"Filtro", kind:"filtro", dims:r.filtro.dims, qty:r.filtro.qty });
     units.push({ label:"Sumidouro", kind:"sumidouro", dims:r.sumid.dims, qty:r.sumid.qty });
 
-    var totalComp = units.reduce(function(a,u){return a+u.dims[0];},0) + GAP*(units.length-1);
+    var totalComp = units.reduce(function(a,u){return a+u.dims[0];},0) + gaps.reduce(function(a,gap){return a+gap;},0);
     var maxLarg = Math.max.apply(null, units.map(function(u){return u.dims[1];}));
 
     var distPoco = (state.distPoco!==null && !isNaN(state.distPoco) && state.distPoco>0) ? state.distPoco : null;
     var distEdif = (state.distEdif!==null && !isNaN(state.distEdif) && state.distEdif>0) ? state.distEdif : null;
     var rPoco = distPoco || 15;
     var rEdif = distEdif || 1.5;
-    var neededHalf = Math.max(rPoco, totalComp/2 + 0.5, maxLarg/2 + 0.5);
+    var neededHalf = Math.max(rPoco, totalComp - r.sumid.dims[0]/2 + 0.5, maxLarg/2 + 0.5);
 
     var W=720, H=520, pad=44;
     var scale = Math.min((W-2*pad)/(2*neededHalf), (H-2*pad)/(2*neededHalf));
@@ -3606,7 +3793,7 @@
       var wpx = u.dims[0]*scale, hpx = u.dims[1]*scale;
       var xRect = curRight - wpx;
       rects.unshift({ x:xRect, y:cy-hpx/2, w:wpx, h:hpx, label:u.label, kind:u.kind, dims:u.dims, qty:u.qty });
-      curRight = xRect - GAP*scale;
+      if (i > 0) curRight = xRect - gaps[i-1]*scale;
     }
 
     var pocoOK = distPoco===null || distPoco>=15;
@@ -3639,7 +3826,7 @@
       var a = rects[k], b = rects[k+1];
       var yMid = (a.y+a.h/2);
       s += '<line x1="'+(a.x+a.w)+'" y1="'+yMid+'" x2="'+b.x+'" y2="'+(b.y+b.h/2)+'" stroke="var(--ink-soft)" stroke-width="1.6"/>';
-      s += '<text x="'+((a.x+a.w+b.x)/2)+'" y="'+(yMid-5)+'" font-size="7.5" fill="var(--ink-soft)" text-anchor="middle" font-family="JetBrains Mono, monospace">'+GAP.toFixed(1)+'m</text>';
+      s += '<text x="'+((a.x+a.w+b.x)/2)+'" y="'+(yMid-5)+'" font-size="7.5" fill="var(--ink-soft)" text-anchor="middle" font-family="JetBrains Mono, monospace">'+fmt(gaps[k],2)+' m</text>';
     }
 
     // cota do comprimento total da implantação
@@ -3682,31 +3869,16 @@
     el("infoSum").innerHTML = moduleInfoHTML("sumidouro");
   }
 
-  // Perfil longitudinal — corte esquemático único que reúne, num só desenho, o que a
-  // Tabela 1322 (callout acima) só explicava em texto: para cada módulo, o número de
-  // sequência, o nome, a NORMA que o rege, a FUNÇÃO (curta), o requisito-chave que ela
-  // exige, e o mecanismo de fluxo (entrada/saída submersas na fossa, fluxo ascendente
-  // no filtro, infiltração sem radier no sumidouro). Os dois desníveis marcados (Δh1/Δh2)
-  // NÃO têm a mesma origem — por isso não usam a mesma fórmula nem o mesmo degrau visual:
-  //  Δh1 (fossa->filtro) é geométrico: o filtro recebe por entrada AFOGADA NO FUNDO
-  //   (fluxo ascendente, exigência da NBR 13969), então a queda é da ordem da própria
-  //   altura útil do filtro — não é declividade de tubulação, não vem de tabela de DN.
-  //  Δh2 (filtro->sumidouro) é a queda mínima usual de interligação: distância ×
-  //   declividade mínima do DN (quedaMinima) — essa sim é pequena (poucos cm).
-  // O processo completo (parágrafo) e a lista integral de requisitos continuam nos
-  // cards abaixo (moduleInfoHTML) — aqui é a síntese visual, não substitui aquele texto.
-  // r (opcional) = results.results do dimensionamento atual, para usar as dimensões e a
-  // altura útil REAIS do projeto ativo; sem r, cai numa estimativa ilustrativa.
-  function perfilLongitudinalSVG(r){
-    var gap = 1.0; // mesmo afastamento padrão usado na planta de locação
-    var dn = state.dnTubulacao;
-    var declPct = _C_.lookupDeclividadeMin(dn);
-    var quedaDecl = _C_.quedaMinima(gap, dn);
-    var huFiltro = (r && r.filtro && r.filtro.dims) ? r.filtro.dims[2] : null;
+  // Perfil do tratamento e quedas dos trechos retos, em escala esquemática.
+  function perfilLongitudinalSVG(r, interligacoes, niveis){
+    var dn = interligacoes.dn;
+    var declPct = interligacoes.declividade;
+    var primeira = interligacoes.trechos[0];
+    var segunda = interligacoes.trechos[1];
     var doubleChamber = (r && r.fossa && r.fossa.dims) ? (r.fossa.dims[0]/r.fossa.dims[1]) >= 2 : true;
 
     var boxW=250, boxH=140, gapPx=130;
-    var step1Px=68, step2Px=18; // degraus diferentes: Δh1 (geométrico) >> Δh2 (declividade)
+    var step1Px=18, step2Px=18; // queda ampliada para leitura
     var padL=40, padTop=98;
     var x0=padL, y0=padTop;
     var W = x0 + 3*boxW + 2*gapPx + 40;
@@ -3807,21 +3979,23 @@
         var midx, midy, line1, line2, boxColor;
         if (i===0){
           // trecho externo: saída afogada da fossa -> queda -> entrada afogada no fundo do filtro
-          var ax = x+w+22, ay = y+b.h*0.24+8, bx = next.x-8, by = next.y+next.h-14;
-          s += '<path d="M'+ax+' '+ay+' L'+ax+' '+by+' L'+bx+' '+by+'" stroke="var(--good)" stroke-width="2" fill="none"/>';
-          s += pipeArrow(bx-6, by, next.x+4, by, "--good");
-          midx = ax+16; midy = (ay+by)/2;
-          line1 = 'Δh₁ ≈ ' + (huFiltro!==null ? fmt(huFiltro,2)+' m' : 'H útil do filtro');
-          line2 = 'entrada afogada — não é declividade';
+          var ax = x+w+22, ay = y+b.h*0.24+8, bx = next.x+8, by = next.y+next.h-14;
+          var pipeEndY = ay + step1Px;
+          s += pipeArrow(ax, ay, bx, pipeEndY, "--good");
+          s += '<path d="M'+bx+' '+pipeEndY+' V'+by+'" stroke="var(--good)" stroke-width="2" fill="none"/>';
+          s += pipeArrow(bx, by, bx+14, by, "--good");
+          midx = (ax+bx)/2; midy = (ay+pipeEndY)/2;
+          line1 = 'Δh₁ ≥ '+fmt(primeira.queda*100,1)+' cm';
+          line2 = 'trecho reto antes da entrada afogada';
           boxColor = "--fossa";
-          s += svgText(midx+58, midy-26, line1, boxColor, 10, "middle", 700);
-          s += svgText(midx+58, midy-15, line2, "--ink-faint", 7.5, "middle", 400);
+          s += svgText(midx, midy-24, line1, boxColor, 10, "middle", 700);
+          s += svgText(midx, midy-13, line2, "--ink-faint", 7.5, "middle", 400);
         } else {
           var ax2 = x+w+22, ay2 = y+16, bx2 = next.x-8, by2 = next.y+16;
           s += '<path d="M'+ax2+' '+ay2+' L'+bx2+' '+by2+'" stroke="var(--warn)" stroke-width="2" fill="none"/>';
           s += pipeArrow(ax2, ay2, bx2-4, by2, "--warn");
           midx = (ax2+bx2)/2; midy=(ay2+by2)/2;
-          line1 = 'Δh₂ ≥ '+fmt(quedaDecl*100,1)+' cm';
+          line1 = 'Δh₂ ≥ '+fmt(segunda.queda*100,1)+' cm';
           line2 = 'declividade mín. '+fmt(declPct,1)+'% (DN'+dn+')';
           boxColor = "--good";
           s += svgText(midx, midy-22, line1, boxColor, 10, "middle", 700);
@@ -3831,10 +4005,14 @@
     });
 
     var footY = H-70;
-    s += '<text x="'+(x0)+'" y="'+footY+'" font-size="8.5" fill="var(--ink-faint)">Fluxo por gravidade: cada módulo assenta mais baixo que o anterior, mas por dois motivos diferentes (Δh₁ e Δh₂ acima não usam a mesma fórmula).</text>';
-    s += '<text x="'+(x0)+'" y="'+(footY+13)+'" font-size="8.5" fill="var(--ink-faint)">Δh₁ não é normativo nem de tubulação: é a diferença de cota entre a saída submersa da fossa e a entrada afogada no fundo do filtro (fluxo ascendente, NBR 13969).</text>';
-    s += '<text x="'+(x0)+'" y="'+(footY+26)+'" font-size="8.5" fill="var(--ink-faint)">Δh₂ = '+fmt(gap,1)+' m de interligação × declividade mínima do DN'+dn+' ('+fmt(declPct,1)+'%) — degrau ampliado no desenho para leitura.</text>';
-    s += '<text x="'+(x0)+'" y="'+(footY+39)+'" font-size="8.5" fill="var(--ink-faint)">Processo completo e lista integral de requisitos de cada módulo: cards abaixo. Ajustar cotas reais conforme o projeto hidrossanitário executivo.</text>';
+    s += '<text x="'+(x0)+'" y="'+footY+'" font-size="9" fill="var(--ink-soft)">Queda do trecho reto = comprimento horizontal × declividade de referência (DN '+dn+', '+fmt(declPct,1)+'%).</text>';
+    s += '<text x="'+(x0)+'" y="'+(footY+15)+'" font-size="9" fill="var(--ink-soft)">A descida para o fundo do filtro é interna ao dispositivo de entrada. O desnível ilustrado está ampliado e não define cotas absolutas.</text>';
+    niveis.trechos.forEach(function(t,i){
+      function display(n){return Number.isFinite(n) ? fmt(n,3)+" m" : "pendente";}
+      s += svgText(x0,footY+31+i*13,(i===0 ? "Fossa → filtro" : "Filtro → sumidouro")
+        +" · saída "+display(t.inicial)+" · entrada "+display(t.final)+" · entrada máxima "+display(t.maximo),
+        t.atende===false?"--bad":"--ink-soft",9,"start",600);
+    });
     s += '</svg>';
     return s;
   }
@@ -3858,6 +4036,82 @@
         + '</dt><dd class="'+(deficit ? 'deficit' : '')+'">'+value(Math.abs(difference))+'</dd></dl>'
         + (unit === "m²" ? '<div class="infil-chart" id="memorialInfilChart"></div>' : '') + '</article>';
     }).join("");
+  }
+
+  function renderModeComparison(padrao, unico){
+    function figures(out){
+      var r = out.results;
+      var rows = quantRows(r, out.cg);
+      var area = function(module){ return module.dims[0]*module.dims[1]*(module.qty || 1); };
+      var unitText = function(module){
+        return module.qty+" × "+fmt(module.dims[0],2)+" × "+fmt(module.dims[1],2)+" × H "+fmt(module.dims[2],2)+" m";
+      };
+      var invalidFossa = r.fossa.vol <= 1000;
+      var invalidFiltro = r.filtro.vol < FILTRO_VOL_MIN_L - 1e-6;
+      var pending = "Revise as dimensões";
+      return [
+        invalidFossa ? pending : unitText(r.fossa),
+        invalidFiltro ? pending : unitText(r.filtro),
+        unitText(r.sumid),
+        invalidFossa || invalidFiltro ? pending : fmt(area(r.fossa)+area(r.filtro)+area(r.sumid)+(out.cg ? area(out.cg) : 0),2)+" m²",
+        invalidFossa ? pending : fmt(r.fossa.vol*r.fossa.qty/1000,2)+" m³",
+        invalidFiltro ? pending : fmt(r.filtro.vol*r.filtro.qty/1000,2)+" m³",
+        fmt(out.infiltracao.capacidade,1)+" L/dia",
+        invalidFossa || invalidFiltro ? pending : fmtR$(rows.reduce(function(total,row){ return total + row.q.custo*row.qtd; },0))
+      ];
+    }
+    var left = figures(padrao), right = figures(unico);
+    var isStandard = state.mode === "padrao";
+    var labels = ["Fossa séptica","Filtro anaeróbio","Sumidouro","Área em planta dos módulos",
+      "Volume útil total da fossa","Volume útil total do filtro","Capacidade estimada de infiltração","Custo estimado dos materiais"];
+    el("modeComparison").innerHTML = '<table><thead><tr><th scope="col">Indicador</th><th scope="col" class="'+(isStandard?"active-mode":"")
+      +'">Módulos padrão'+(isStandard?" · em uso":"")+'</th><th scope="col" class="'+(!isStandard?"active-mode":"")
+      +'">Dimensionamento otimizado'+(!isStandard?" · em uso":"")+'</th></tr></thead><tbody>'
+      + labels.map(function(label,i){ return '<tr><th scope="row">'+label+'</th><td>'+left[i]+'</td><td>'+right[i]+'</td></tr>'; }).join("")
+      + '<tr><td></td><td><button class="btn small" type="button" data-use-mode="modePadrao"'+(isStandard?" disabled":"")+'>Usar módulos padrão</button></td>'
+      + '<td><button class="btn small" type="button" data-use-mode="modeUnico"'+(!isStandard?" disabled":"")+'>Usar otimizado</button></td></tr></tbody></table>'
+      + '<p class="three-caption">A área em planta soma as bases dos módulos. Acrescente os afastamentos para a implantação. O custo usa os preços unitários informados para concreto, alvenaria, fôrma e aço.</p>';
+  }
+
+  function renderCodeReview(scope,out,issues,verified){
+    var invalidScope = scope.vazaoExcede || scope.dboExcede;
+    var status = invalidScope ? "Fora do escopo de vazão ou carga da NBR 17076"
+      : scope.dboInformada ? "Vazão e carga dentro dos limites de escopo da NBR 17076"
+      : "Escopo da NBR 17076 pendente de carga orgânica";
+    if (scope.dboExcede){
+      issues.push({ field:"dboProjeto", message:fmt(state.dboProjeto,2)+" kg DBO/dia informados. Limite de escopo: 3,80 kg DBO/dia." });
+    }
+    var html = '<strong>'+status+'</strong><p>Escopo de pequeno porte: até 12.000 L/dia e 3,80 kg DBO/dia, em área sem rede de esgoto. '
+      +'Vazão calculada: '+fmt(out.sumVazao,0)+' L/dia. '
+      +(scope.dboInformada ? 'Carga informada: '+fmt(state.dboProjeto,2)+' kg DBO/dia.' : 'Carga orgânica pendente.')
+      +(verified ? ' Parâmetros informados aplicados: T da fossa '+fmt(verified.tFossa,3)+' d, K '+fmt(verified.k,2)
+        +' d, T do filtro '+fmt(verified.tFiltro,3)+' d e taxa de aplicação '+fmt(verified.infiltracao,3)+' m³/m².dia.'
+        : ' Parâmetros conferidos pendentes. Estimativas pelo método histórico.')
+      +' Confira os demais requisitos com o órgão local.</p>'
+      +'<p><a href="https://sistemas.agems.ms.gov.br/consulta_publica/documentos/1755709093_20082025125813.pdf" target="_blank" rel="noopener">Limites de escopo da NBR 17076 · AGEMS</a></p>';
+    if(state.criterioLocal === "florianopolis"){
+      var sum = out.results.sumid;
+      var internal = _C_.areaInternaSumidouro(sum.dims,state.wallThickness);
+      var area = internal.area*sum.qty;
+      var capacity = area*out.taxa*1000;
+      html += '<p><strong>Florianópolis · OT 06/2026.</strong> Verificação para sumidouro prismático sem enchimento lateral, com as dimensões do desenho tratadas como externas. '
+        +'Área interna estimada com paredes e fundo: '+fmt(area,2)+' m². Capacidade estimada: '+fmt(capacity,0)+' L/dia. '
+        +'A referência usa a altura abaixo da geratriz inferior do tubo.</p>'
+        +'<p><a href="https://redeplanejamento.pmf.sc.gov.br/pt-BR/documentos/ot-006-valas-de-infiltracao-e-sumidouro" target="_blank" rel="noopener">Orientação Técnica 06 · Prefeitura de Florianópolis</a></p>';
+      if(Math.min(internal.largura,internal.comprimento)<1){
+        issues.push({ field:internal.largura<internal.comprimento || state.mode==="unico" ? "largPadrao" : "sumComp",
+          message:"OT 06: menor dimensão interna estimada de "+fmt(Math.min(internal.largura,internal.comprimento),2)+" m. Referência para seção prismática: 1,00 m." });
+      }
+      if(sum.dims[2]<0.6 || sum.dims[2]>3.5){
+        issues.push({ field:"sumH",message:"OT 06: altura útil de "+fmt(sum.dims[2],2)+" m. Faixa municipal: 0,60 a 3,50 m." });
+      }
+      if(capacity<out.sumVazao-0.001){
+        issues.push({ field:state.mode==="padrao" ? "sumComp" : "numSumUnitsInput",
+          message:"OT 06: déficit estimado de "+fmt(out.sumVazao-capacity,0)+" L/dia ao descontar a espessura das paredes. Confira as dimensões internas e a taxa do ensaio." });
+      }
+    }
+    el("codeReview").innerHTML = html;
+    return html;
   }
 
   var boardView = "3d";
@@ -3890,7 +4144,7 @@
     figure.replaceChildren(copy, caption);
   }
 
-  function renderProjeto(r, cg, infiltracao){
+  function renderProjeto(r, cg, infiltracao, interligacoes, niveis){
     var escala = Math.max(1, infiltracao.demanda, infiltracao.capacidade);
     var falta = infiltracao.saldo < -0.001;
     function barra(rotulo, valor, classe){
@@ -3920,7 +4174,9 @@
         height: r.sumid.dims[2] + state.forceClearance, clearance: state.forceClearance,
         ka: state.forceKa, soilWeight: state.forceSoilWeight, surcharge: state.forceSurcharge,
         influence: state.forceInfluence, factor: state.forceFactor, moment: state.forceMoment,
-        shear: state.forceShear
+        shear: state.forceShear, waterDepth:state.forceWaterDepth, saturatedWeight:state.forceSaturatedWeight,
+        dimensions:r.sumid.dims, surcharges:[state.forceQ1,state.forceQ2,state.forceQ3,state.forceQ4],
+        support:state.wallSupport, resistance:{v:state.wallResistanceV,m:state.wallResistanceM}, extraQ:state.wallExtraQ
       });
     }
     el("projFossaQty").textContent = r.fossa.qty+"× módulo"+(r.fossa.qty>1?"s":"");
@@ -3947,8 +4203,23 @@
       el("drawCGCorte").innerHTML = corteSVG(cg.dims[0], cg.dims[2], Math.min(state.espLaje,0.08), "cg", baseOpts);
     }
 
-    el("locacaoWrap").innerHTML = plantaLocacaoSVG(r, cg);
-    el("perfilLongWrap").innerHTML = perfilLongitudinalSVG(r);
+    el("locacaoWrap").innerHTML = plantaLocacaoSVG(r, cg, interligacoes);
+    el("perfilLongWrap").innerHTML = perfilLongitudinalSVG(r, interligacoes, niveis);
+    function cota(valor){return Number.isFinite(valor) ? fmt(valor,3)+" m" : "—";}
+    el("processCotas").innerHTML = '<table><caption>Cotas das interligações · geratriz inferior</caption>'
+      + '<thead><tr><th>Trecho</th><th>Horizontal</th><th>Queda mínima de referência</th><th>Saída</th><th>Entrada</th><th>Entrada máx.</th><th>Queda observada</th><th>Verificação</th></tr></thead><tbody>'
+      + interligacoes.trechos.map(function(t,i){
+        var linha=niveis.trechos[i];
+        var status=linha.atende===null ? "Dados pendentes" : linha.atende ? "Atende" : "Não atende";
+        return '<tr><th scope="row">'+(i===0 ? "Fossa → filtro" : "Filtro → sumidouro")+'</th><td>'+fmt(t.comprimento,2)+' m</td><td>'
+          +cota(t.queda)+' ('+fmt(interligacoes.declividade,1)+'%)</td><td>'+cota(linha.inicial)+'</td><td>'+cota(linha.final)
+          +'</td><td>'+cota(linha.maximo)+'</td><td>'+cota(linha.queda)+'</td><td>'+status+'</td></tr>';
+      }).join("") + '</tbody></table>';
+    el("excavationLevels").innerHTML = '<table><caption>Estimativa da cota de base e profundidade até a base</caption>'
+      +'<thead><tr><th>Unidade</th><th>Cota de base</th><th>Profundidade</th><th>Referência adotada</th></tr></thead><tbody>'
+      +[["Fossa","Saída menos altura útil"],["Filtro","Entrada menos distância informada até a base"],["Sumidouro","Entrada menos altura útil"]].map(function(item,i){
+        return '<tr><th scope="row">'+item[0]+'</th><td>'+cota(niveis.bases[i])+'</td><td>'+cota(niveis.profundidades[i])+'</td><td>'+item[1]+'</td></tr>';
+      }).join("")+'</tbody></table><p class="three-caption">A profundidade é referida à cota de terreno informada. Espessuras de base e lastro são detalhadas no projeto executivo.</p>';
     renderModuleInfo();
     refreshBoard();
   }
@@ -4066,7 +4337,7 @@
       + '<div class="report-signature__disclaimer">Relatório elaborado por meio deste aplicativo — os resultados e observações refletem os parâmetros e dados informados na aba Dados de entrada.</div>'
       + '</div>';
 
-    el("reportBody").innerHTML = html;
+    el("reportBody").innerHTML = '<div class="code-review">'+ctx.codeReview+'</div>'+html;
   }
 
   /* ============ ABNT PREVIEW ============ */
@@ -4137,6 +4408,55 @@
     return page.outerHTML;
   }
 
+  function exportTechnicalSheet(){
+    var ns="http://www.w3.org/2000/svg";
+    var sheet=document.createElementNS(ns,"svg");
+    var project=currentProjectName();
+    var theme=getComputedStyle(document.documentElement);
+    var figures=[["Planta de locação","#locacaoWrap svg"],["Perfil longitudinal","#perfilLongWrap svg"]];
+    [["Fossa","Fossa séptica"],["Filtro","Filtro anaeróbio"],["Sum","Sumidouro"],["CG","Caixa de gordura"]].forEach(function(item){
+      if(item[0]==="CG" && !lastReportCtx.cg) return;
+      figures.push([item[1]+" · Planta","#draw"+item[0]+"Planta svg"],[item[1]+" · Corte","#draw"+item[0]+"Corte svg"]);
+    });
+    figures=figures.concat(Array.from(el("forceWalls").querySelectorAll("svg")).map(function(svg,i){return ["Empuxo e esforços · P"+(i+1),svg];}));
+    var height=140+Math.ceil(figures.length/2)*284;
+    sheet.setAttribute("viewBox","0 0 1040 "+height);
+    sheet.setAttribute("width","1040");
+    sheet.setAttribute("height",height);
+    var content=figures.map(function(item){var s=typeof item[1]==="string"?document.querySelector(item[1]):item[1];return s.outerHTML;}).join("");
+    var tokens=new Set(Array.from(content.matchAll(/var\((--[\w-]+)\)/g),function(m){return m[1];}));
+    tokens.forEach(function(token){sheet.style.setProperty(token,theme.getPropertyValue(token));});
+    function add(tag,attrs,value){
+      var node=document.createElementNS(ns,tag);
+      Object.entries(attrs).forEach(function(pair){node.setAttribute(pair[0],pair[1]);});
+      if(value) node.textContent=value;
+      sheet.appendChild(node);
+      return node;
+    }
+    function label(value,x,y,size,weight){
+      return add("text",{x:x,y:y,fill:theme.getPropertyValue("--ink").trim(),"font-family":"Segoe UI, sans-serif",
+        "font-size":size,"font-weight":weight},value);
+    }
+    add("rect",{width:1040,height:height,fill:theme.getPropertyValue("--surface").trim()});
+    label("DRE · Pranchas do sistema de tratamento",22,32,23,700);
+    var identity=label("",22,59,13,600);
+    identity.textContent=("Projeto: "+project+" · Obra: "+(state.localObra || "não informada")).slice(0,140);
+    label("Revisão do aplicativo "+document.querySelector(".vtag").textContent+" · "+new Date().toLocaleDateString("pt-BR"),22,80,12,400);
+    label("Contorno espesso: elementos em corte · tracejado: projeções e níveis · setas: fluxo ou pressão conforme a vista",22,102,12,400);
+    figures.forEach(function(item,i){
+      var x=20+(i%2)*510, y=125+Math.floor(i/2)*284;
+      add("rect",{x:x,y:y,width:490,height:272,fill:"none",stroke:theme.getPropertyValue("--line-strong").trim(),rx:8});
+      label(item[0],x+12,y+23,13,700);
+      var original=typeof item[1]==="string" ? document.querySelector(item[1]) : item[1];
+      var svg=original.cloneNode(true);
+      stripIds(svg,"prancha-"+i+"-");
+      [["x",x+6],["y",y+34],["width",478],["height",230]].forEach(function(pair){svg.setAttribute(pair[0],pair[1]);});
+      sheet.appendChild(svg);
+    });
+    var name="pranchas-"+project.replace(/[^a-z0-9-_]+/gi,"_")+".svg";
+    saveFileSmart(new XMLSerializer().serializeToString(sheet),name,[{name:"Desenho vetorial SVG",extensions:["svg"]}]);
+  }
+
   function buildAbntAppendixPage(){
     var page = document.createElement("div");
     page.className = "abnt-page";
@@ -4197,12 +4517,12 @@
     });
 
     ["tfiltroManual","cgRefeicoes","precoConcreto","precoAlvenaria","precoForma","precoAco","taxaArmadura","espLaje",
-     "wallThickness","submersaoEntrada","submersaoSaidaFrac",
+     "wallThickness","submersaoEntrada","submersaoSaidaFrac","distFossaFiltro","distFiltroSumid",
      "matEspacamentoMax","matPilarB","matPilarH","matCobrimento",
      "matPilarNumBarras","matBaldrameNumBarras","matMeioNumBarras","matTopoNumBarras",
      "matEstriboPilarEsp","matEstriboVigaEsp","matMalhaEsp",
-     "percMedido","lencolProf","distPoco","distEdif","localObra","responsavelTecnico"
-    ].concat(Object.keys(forceInputs)).forEach(function(id){ el(id).addEventListener("input", recalc); });
+     "percMedido","lencolProf","distPoco","distEdif","distArvore","dboProjeto","criterioLocal","localObra","responsavelTecnico"
+    ].concat(Object.keys(forceInputs),projectInputs,["wallSupport"]).forEach(function(id){ el(id).addEventListener("input", recalc); });
 
     el("largPadrao").addEventListener("input", function(){ markTerrainCustom(); recalc(); });
     linkDimensionPair("fossaComp","fossaH");
@@ -4214,7 +4534,7 @@
       state.mode = "padrao";
       el("modePadrao").setAttribute("aria-pressed","true");
       el("modeUnico").setAttribute("aria-pressed","false");
-      el("advPanel").style.display = "";
+      el("geometryModeNote").hidden = true;
       el("numSumUnitsField").style.display = "none";
       recalc();
     });
@@ -4222,7 +4542,7 @@
       state.mode = "unico";
       el("modeUnico").setAttribute("aria-pressed","true");
       el("modePadrao").setAttribute("aria-pressed","false");
-      el("advPanel").style.display = "none";
+      el("geometryModeNote").hidden = false;
       el("numSumUnitsField").style.display = "";
       recalc();
     });
@@ -4266,6 +4586,18 @@
       el("tabBtn"+name).addEventListener("click", function(){ switchTab(name); });
     });
     window.switchTab = switchTab;
+    el("modeComparison").addEventListener("click", function(event){
+      var button = event.target.closest("[data-use-mode]");
+      if (button) el(button.dataset.useMode).click();
+    });
+    el("distCallout").addEventListener("click", function(event){
+      var button = event.target.closest("[data-field-target]");
+      if (!button) return;
+      switchTab("Dados");
+      var input = el(button.dataset.fieldTarget);
+      input.focus({ preventScroll:true });
+      input.scrollIntoView({ block:"center" });
+    });
     el("projectThreeModule").addEventListener("change", refreshBoard);
     document.querySelectorAll("[data-board-view]").forEach(function(btn){
       btn.addEventListener("click", function(){ boardView = btn.dataset.boardView; refreshBoard(); });
@@ -4282,6 +4614,8 @@
     });
 
     el("previewBtn").addEventListener("click", openPreview);
+    el("previewPrancha").addEventListener("click",openPreview);
+    el("exportPrancha").addEventListener("click",exportTechnicalSheet);
     el("previewCloseBtn").addEventListener("click", closePreview);
     el("previewPrintBtn").addEventListener("click", printFromPreview);
     el("previewOverlay").addEventListener("click", function(e){
@@ -4379,7 +4713,7 @@
   el("autosaveNote").textContent = "projeto \"" + currentProjectName() + "\" carregado";
 
   if (el("copyrightNotice")){
-    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.3.0.";
+    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.5.0.";
   }
 })();
 </script>

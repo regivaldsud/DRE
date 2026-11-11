@@ -140,7 +140,27 @@
     const drain = kind === "sumidouro";
     const concrete = drain ? 0xb0a089 : colors.concrete;
 
-    box(group, [length, height, thickness], [0, height / 2, -(width - thickness) / 2], concrete);
+    const backCenter = -(width - thickness) / 2;
+    if (closed) {
+      box(group, [length, height, thickness], [0, height / 2, backCenter], concrete);
+    } else {
+      const rows = Math.min(12, Math.max(3, Math.round(height / 0.20)));
+      const columns = Math.min(16, Math.max(3, Math.round(length / 0.40)));
+      const course = height/rows;
+      const block = length/columns;
+      const shades = drain ? [0xb4a58f,0xae9e87,0xb8aa95] : [0xa3b0bc,0x9daab6,0xaab7c2];
+      for(let row=0;row<rows;row++){
+        for(let col=0;col<=columns;col++){
+          const start = Math.max(0,(col-(row%2)*0.5)*block);
+          const end = Math.min(length,(col+1-(row%2)*0.5)*block);
+          const gap = Math.min(block,course)*0.025;
+          if(end-start<=gap) continue;
+          const perforation = drain && row%3===1 && col%2===1;
+          box(group,[end-start-gap,course-gap,perforation ? thickness*0.76 : thickness],
+            [(start+end-length)/2,(row+0.5)*course,backCenter],shades[(row*3+col*7)%shades.length]);
+        }
+      }
+    }
     const endX = (length - thickness) / 2;
     box(group, [thickness, height, innerW], [-endX, height / 2, 0], concrete);
     if (closed) {
@@ -151,20 +171,40 @@
     }
 
     if (!drain) box(group, [length, slab, width], [0, -slab / 2, 0], colors.steel).renderOrder = -1;
+    if (drain) {
+      const beam = Math.min(slab,height*0.12);
+      box(group,[length,beam,thickness],[0,-beam/2,backCenter],0x8b8f8b).renderOrder = -1;
+      for(const side of [-1,1]){
+        box(group,[thickness,beam,innerW],[side*endX,-beam/2,0],0x8b8f8b).renderOrder = -1;
+      }
+      box(group,[length,beam,thickness],[0,-beam/2,-backCenter],0x8b8f8b).renderOrder = -1;
+    }
     if (closed) {
       box(group, [length, slab, width], [0, height + slab / 2, 0], colors.steel);
-    } else if (drain) {
-      for (let row = 0; row < 5; row++) {
-        for (let column = 0; column < 9; column++) {
-          const x = ((column + 0.5) / 9 - 0.5) * innerL;
-          const y = (row + 0.5) * height / 5;
-          box(group, [innerL / 26, height / 24, thickness / 12], [x, y, -width / 2 + thickness * 1.01], 0x665746);
+      const radius = Math.min(length, width) * 0.18;
+      const cap = new T.Mesh(new T.CylinderGeometry(radius, radius, slab * 0.10, 24),
+        new T.MeshLambertMaterial({ color: 0x566878 }));
+      cap.position.set(0, height + slab * 1.05, 0);
+      group.add(cap);
+    } else {
+      const filter = kind === "filtro";
+      const mediaHeight = height * (filter ? 0.54 : 0.16);
+      if (!drain) box(group, [innerL * 0.98, mediaHeight, innerW * 0.96], [0, mediaHeight / 2, 0], filter ? 0x8b9087 : colors.liquid);
+      if (filter || drain) {
+        const colorsBrita = [0x757d76, 0x91948a, 0xb1aea0, 0x858577];
+        const size = Math.min(innerL / 11, innerW / 6, height * 0.035);
+        for (let row = 0; row < 4; row++) {
+          for (let col = 0; col < 10; col++) {
+            const radius = size * (0.76 + ((row * 7 + col * 13) % 11) / 32);
+            const stone = new T.Mesh(new T.CylinderGeometry(radius * 0.66, radius, radius * 0.68, 5),
+              new T.MeshLambertMaterial({ color: colorsBrita[(row * 3 + col) % colorsBrita.length] }));
+            stone.position.set((col / 10 - 0.45) * innerL, (filter ? mediaHeight : 0) + radius * 0.31,
+              (row / 4 - 0.37) * innerW);
+            stone.rotation.y = (row * 3 + col) * 0.49;
+            group.add(stone);
+          }
         }
       }
-    } else {
-      const mediaHeight = height * (kind === "filtro" ? 0.54 : 0.16);
-      const color = kind === "filtro" ? 0x6d998e : colors.liquid;
-      box(group, [innerL * 0.98, mediaHeight, innerW * 0.96], [0, mediaHeight / 2, 0], color);
       if (kind === "cg" || (kind === "fossa" && length >= 2 * width)) {
         const x = innerL * (kind === "cg" ? 0.05 : 1 / 6);
         box(group, [thickness, height * 0.72, innerW], [x, height * 0.5, 0], colors.steel);
@@ -175,8 +215,8 @@
     for (const side of drain ? [-1] : [-1, 1]) {
       const y = height * (kind === "filtro" && side < 0 ? 0.19 : 0.76);
       const color = side === -1 ? 0x21847b : 0xaf6229;
-      const pipe = new T.Mesh(new T.CylinderGeometry(dn / 2000, dn / 2000, stub, 12),
-        new T.MeshLambertMaterial({ color }));
+      const pipe = new T.Mesh(new T.CylinderGeometry(dn / 2000, dn / 2000, stub, 16, 1, true),
+        new T.MeshLambertMaterial({ color, side:T.DoubleSide }));
       pipe.rotation.z = Math.PI / 2;
       pipe.position.set(side * (length + stub) / 2, y, 0);
       group.add(pipe);
@@ -213,17 +253,22 @@
       const face = left - section / 2;
       const topX = face - maxLength * top / bottom;
       const bottomX = face - maxLength;
-      const outline = [[face, 0, 0], [bottomX, 0, 0], [topX, height, 0], [face, height, 0]];
+      const points = load.perfil.map(point => [face-maxLength*point.total/bottom, height-point.z, 0]);
+      const outline = [[face, 0, 0], ...points.slice().reverse(), [face, height, 0]];
       const surface = new T.BufferGeometry();
       surface.setAttribute("position", new T.Float32BufferAttribute(outline.flat(), 3));
-      surface.setIndex([0, 1, 2, 0, 2, 3]);
+      surface.setIndex(outline.slice(2).flatMap((_,i)=>[0,i+1,i+2]));
       group.add(new T.Mesh(surface, new T.MeshBasicMaterial({
         color: colors.soil, side: T.DoubleSide, transparent: true, opacity: 0.17
       })));
       line(group, [...outline, outline[0]], colors.soil);
       for (let i = 0; i <= 6; i++) {
         const ratio = i / 6;
-        const x = bottomX + (topX - bottomX) * ratio;
+        const depth = height * (1-ratio);
+        const right = load.perfil.findIndex(point => point.z >= depth);
+        const a = load.perfil[Math.max(0,right-1)], b = load.perfil[right];
+        const value = a === b ? b.total : a.total + (b.total-a.total)*(depth-a.z)/(b.z-a.z);
+        const x = face-maxLength*value/bottom;
         arrow(group, [x, height * ratio, section / 2], [face, height * ratio, section / 2], colors.soil, section * 1.2);
       }
       const start = face - maxLength * 1.55;
@@ -259,9 +304,101 @@
   const dimensions = document.getElementById("projectThreeDims");
   const summary = document.getElementById("forceThreeSummary");
   const parameters = document.getElementById("forceThreeParams");
+  const wallSelector = document.getElementById("forceWall");
+  const wallHost = document.getElementById("forceWalls");
   let modules = {};
   let lastModule;
   let lastForces;
+  let lastWallKey;
+  let forceData;
+  let walls;
+  let scenarioKey;
+
+  function renderScenarios(data){
+    const key = JSON.stringify([lastWallKey,data.support,data.factor,data.resistance,data.extraQ]);
+    if(key===scenarioKey) return;
+    const scenarios = [
+      { name:"Solo seco", waterDepth:null, extra:0 },
+      { name:"Com lençol", waterDepth:data.waterDepth, extra:0, pending:data.waterDepth==null },
+      { name:"Sobrecarga adicional", waterDepth:data.waterDepth, extra:data.extraQ, pending:data.extraQ==null }
+    ];
+    const rows = walls.flatMap(wall=>scenarios.map(scenario=>{
+      const first = '<tr><th scope="row">'+wall.id+'</th><td>'+scenario.name+'</td>';
+      if(scenario.pending) return first+'<td colspan="3">Dados pendentes</td></tr>';
+      const load = window.DRE_CALC.calcularEmpuxo({ ...data, influence:1, waterDepth:scenario.waterDepth,
+        surcharge:wall.surcharge+scenario.extra });
+      const check = window.DRE_CALC.verificarFaixa(load,data.height,data.support,data.factor,data.resistance);
+      const status = check.atendeV===false || check.atendeM===false ? "Não atende" :
+        check.atendeV===null || check.atendeM===null ? "Dados pendentes" : "Atende";
+      return first+'<td>'+number.format(check.v)+'</td><td>'+number.format(check.m)+'</td><td>'+status+'</td></tr>';
+    })).join("");
+    document.getElementById("wallScenarios").innerHTML = '<table><caption>Apoio: '
+      +(data.support==="biapoiada"?"base e topo biapoiados":"base engastada e topo livre")
+      +' · γf '+number.format(data.factor)+'</caption><thead><tr><th>Parede</th><th>Cenário</th><th>Vᵈ (kN/m)</th>'
+      +'<th>Mᵈ (kN·m/m)</th><th>Verificação V/M</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    scenarioKey=key;
+  }
+
+  function wallDrawing(wall, height, scales){
+    const width = 112 * wall.face / scales.face;
+    const xWall = 72-width/2, yTop = 40, yBase = 156;
+    let svg = '<svg viewBox="0 0 430 188" role="img" aria-label="Elevação e diagramas da parede '+wall.id+'">';
+    svg += '<rect x="'+xWall+'" y="'+yTop+'" width="'+width+'" height="116" rx="1" fill="var(--surface-3)" stroke="var(--ink-soft)" stroke-width="1.5"/>';
+    for(let row=1;row<7;row++){
+      const y = yTop+row*116/7;
+      svg += '<path d="M'+xWall+' '+y+'h'+width+'" stroke="var(--line-strong)" stroke-width=".65"/>';
+    }
+    svg += '<path d="M'+xWall+' 163v8m'+width+' -8v8M'+xWall+' 167h'+width+'" fill="none" stroke="var(--ink-faint)" stroke-width=".8"/>';
+    svg += '<text x="72" y="183" text-anchor="middle" fill="var(--ink-soft)" font-size="10">'+number.format(wall.face)+' m</text>';
+    svg += '<text x="72" y="23" text-anchor="middle" fill="var(--ink)" font-size="11">Elevação · H '+number.format(height)+' m</text>';
+    const diagrams = [
+      { key:"pressao", title:"Pressão", unit:"kN/m²", color:"#a74624" },
+      { key:"cortante", title:"V / faixa", unit:"kN/m", color:"#226698" },
+      { key:"momento", title:"M / faixa", unit:"kN·m/m", color:"#52645b" }
+    ];
+    diagrams.forEach((d,i)=>{
+      const x = 148+i*93;
+      const y = z => yTop+(yBase-yTop)*z/height;
+      const coord = point => (x+66*point[d.key]/scales[d.key]).toFixed(1)+","+y(point.z).toFixed(1);
+      const points = wall.diagramas.map(coord).join(" ");
+      const end = wall.diagramas.at(-1)[d.key];
+      svg += '<text x="'+(x+33)+'" y="23" text-anchor="middle" fill="var(--ink)" font-size="11">'+d.title+'</text>';
+      svg += '<path d="M'+x+' '+yTop+'V'+yBase+'" stroke="var(--line-strong)" stroke-width=".8"/>';
+      svg += '<polygon points="'+x+','+yTop+' '+points+' '+x+','+yBase+'" fill="'+d.color+'" fill-opacity=".18"/>';
+      svg += '<polyline points="'+points+'" fill="none" stroke="'+d.color+'" stroke-width="1.5"/>';
+      svg += '<text x="'+(x+33)+'" y="175" text-anchor="middle" fill="var(--ink-soft)" font-size="9">'+number.format(end)+' '+d.unit+'</text>';
+    });
+    return svg+'</svg>';
+  }
+
+  function updateWallDetail(){
+    if (!forceData) return;
+    const data = forceData;
+    const { height, ka, soilWeight, clearance, influence, factor, moment, shear } = data;
+    const wall = walls[Number(wallSelector.value)];
+    const strip = Math.min(influence,wall.face);
+    const load = window.DRE_CALC.calcularEmpuxo({ ...data, influence:strip, surcharge:wall.surcharge });
+    const key = JSON.stringify([height,strip,load.perfil]);
+    if (key !== lastForces){
+      forceView.update(group => pressureScene(group, strip, height, load));
+      lastForces = key;
+    }
+    const range = (a,b,unit) => number.format(a)+" → "+number.format(b)+" "+unit;
+    const effort = (value,unit) => value == null ? "Aguardando valor do modelo" : number.format(factor*value)+" "+unit;
+    parameters.textContent = wall.id+" · faixa "+number.format(strip)+" m · K "
+      + new Intl.NumberFormat("pt-BR",{ maximumFractionDigits:4 }).format(ka)
+      +" · γ "+number.format(soilWeight)+" kN/m³ · q "+number.format(wall.surcharge)
+      +" kN/m² · folga "+number.format(clearance)+" m · γf "+number.format(factor)
+      +(data.waterDepth == null ? " · sem água no cenário" : " · lençol a "+number.format(data.waterDepth)+" m do topo");
+    summary.querySelector('[data-force="height"]').textContent = number.format(height)+" m";
+    summary.querySelector('[data-force="pressure"]').textContent = range(load.topo,load.base,"kN/m²");
+    summary.querySelector('[data-force="line"]').textContent = range(load.cargaTopo,load.cargaBase,"kN/m");
+    summary.querySelector('[data-force="resultant"]').textContent = number.format(load.resultante)+" kN";
+    summary.querySelector('[data-force="application"]').textContent = load.alturaAplicacao === null ? "—" : number.format(load.alturaAplicacao)+" m";
+    summary.querySelector('[data-force="base-moment"]').textContent = number.format(load.momentoBase)+" kN·m";
+    summary.querySelector('[data-force="moment"]').textContent = effort(moment,"kN·m");
+    summary.querySelector('[data-force="shear"]').textContent = effort(shear,"kN");
+  }
 
   function drawModule() {
     const module = modules[selector.value];
@@ -279,6 +416,7 @@
 
   selector.addEventListener("change", drawModule);
   lid.addEventListener("change", drawModule);
+  wallSelector.addEventListener("change",updateWallDetail);
   window.DREViews = {
     updateProject(next) {
       modules = next;
@@ -288,28 +426,28 @@
       drawModule();
     },
     updateForces(data) {
-      const { height, ka, soilWeight, surcharge, clearance, influence, factor, moment, shear } = data;
-      const load = window.DRE_CALC.calcularEmpuxo(data);
-      const key = JSON.stringify([height, influence, load.topo, load.base]);
-      if (key !== lastForces) {
-        forceView.update(group => pressureScene(group, influence, height, load));
-        lastForces = key;
+      forceData = data;
+      const { dimensions, height, surcharges, ka, soilWeight, surcharge, waterDepth, saturatedWeight } = data;
+      const key = JSON.stringify([dimensions,height,surcharges,ka,soilWeight,surcharge,waterDepth,saturatedWeight]);
+      if (key !== lastWallKey){
+        walls = window.DRE_CALC.calcularParedesSumidouro(dimensions[0],dimensions[1],data,surcharges);
+        const endpoints = walls.map(wall=>wall.diagramas.at(-1));
+        const scales = {
+          face:Math.max(...walls.map(wall=>wall.face)),
+          pressao:Math.max(1,...endpoints.map(p=>p.pressao)),
+          cortante:Math.max(1,...endpoints.map(p=>p.cortante)),
+          momento:Math.max(1,...endpoints.map(p=>p.momento))
+        };
+        wallHost.innerHTML = walls.map((wall,i)=>'<article class="wall-card"><h3>'+wall.id
+          +' · '+(i%2===0?"Parede longitudinal":"Parede transversal")+'</h3>'
+          +'<p>q '+number.format(wall.surcharge)+' kN/m² · pressão no topo '+number.format(wall.topo)
+          +' kN/m² · água na base '+number.format(wall.perfil.at(-1).agua)+' kN/m²</p>'
+          +wallDrawing(wall,height,scales)+'<p>Resultante na parede: <b>'+number.format(wall.resultante)
+          +' kN</b> · momento da carga em relação à base: <b>'+number.format(wall.momentoBase)+' kN·m</b></p></article>').join("");
+        lastWallKey = key;
       }
-      const range = (a, b, unit) => number.format(a) + " → " + number.format(b) + " " + unit;
-      const effort = (value, unit) => value == null ? "Aguardando valor do modelo" : number.format(factor * value) + " " + unit;
-      parameters.textContent = "Kₐ " + new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 4 }).format(ka)
-        + " · γ " + number.format(soilWeight) + " kN/m³ · q " + number.format(surcharge)
-        + " kN/m² · folga " + number.format(clearance) + " m · faixa " + number.format(influence)
-        + " m · γf " + number.format(factor);
-      summary.querySelector('[data-force="height"]').textContent = number.format(height) + " m";
-      summary.querySelector('[data-force="pressure"]').textContent = range(load.topo, load.base, "kN/m²");
-      summary.querySelector('[data-force="line"]').textContent = range(load.cargaTopo, load.cargaBase, "kN/m");
-      summary.querySelector('[data-force="resultant"]').textContent = number.format(load.resultante) + " kN";
-      summary.querySelector('[data-force="application"]').textContent =
-        load.alturaAplicacao === null ? "—" : number.format(load.alturaAplicacao) + " m";
-      summary.querySelector('[data-force="base-moment"]').textContent = number.format(load.momentoBase) + " kN·m";
-      summary.querySelector('[data-force="moment"]').textContent = effort(moment, "kN·m");
-      summary.querySelector('[data-force="shear"]').textContent = effort(shear, "kN");
+      updateWallDetail();
+      renderScenarios(data);
     }
   };
 })();
