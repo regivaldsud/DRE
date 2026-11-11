@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>DRE 6.6.0 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
+<title>DRE 6.6.1 — Dimensionamento de Fossa, Filtro e Sumidouro — NBR 7229 / NBR 13969</title>
 <style>
   /* =====================================================================
      DRE 6.0 — Sistema visual (design tokens)
@@ -674,9 +674,7 @@
   .report-head--brasao{ display:flex; align-items:flex-start; gap:16px; }
   .report-signature{ margin-top:34px; padding-top:16px; border-top:1px solid var(--line); text-align:center; }
   .report-signature__line{ width:230px; margin:0 auto 8px; border-top:1px solid var(--ink-soft); }
-  .report-signature__name{ font-family:var(--font-mono); font-weight:700; font-size:13px; color:var(--ink); }
-  .report-signature__title{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
-  .report-signature__unit{ font-size:12px; color:var(--ink-soft); }
+  .report-signature__label{ font-size:12px; color:var(--ink-soft); }
   .report-signature__disclaimer{ margin-top:10px; font-size:10.5px; color:var(--ink-faint); max-width:440px; margin-left:auto; margin-right:auto; text-align:justify; }
   .report-section{ margin-top:24px; }
   .report-section:first-child{ margin-top:0; }
@@ -957,7 +955,7 @@
     </div>
     <div>
       <p class="appheader__eyebrow">ENGENHARIA SANITÁRIA</p>
-      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.6.0</span></h1>
+      <h1 class="appheader__title">DRE · Dimensionamento de Redes de Esgoto <span class="vtag">v6.6.1</span></h1>
       <p class="appheader__sub">NBR 7229 · NBR 13969 · NBR 8160 · NBR 6118</p>
     </div>
   </div>
@@ -4332,9 +4330,7 @@
 
     html += '<div class="report-signature">'
       + '<div class="report-signature__line"></div>'
-      + '<div class="report-signature__name">REGIVALDO ARAÚJO DOS SANTOS – 2º Ten OTT</div>'
-      + '<div class="report-signature__title">Arquiteto e Urbanista — CAU A1709445</div>'
-      + '<div class="report-signature__unit">Adjunto da Seção de Obras Militares / COE – 2º Gpt E</div>'
+      + '<div class="report-signature__label">Assinatura do responsável técnico</div>'
       + '<div class="report-signature__disclaimer">Relatório elaborado por meio deste aplicativo — os resultados e observações refletem os parâmetros e dados informados na aba Dados de entrada.</div>'
       + '</div>';
 
@@ -4714,7 +4710,7 @@
   el("autosaveNote").textContent = "projeto \"" + currentProjectName() + "\" carregado";
 
   if (el("copyrightNotice")){
-    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.6.0.";
+    el("copyrightNotice").textContent = "© " + new Date().getFullYear() + " — Todos os direitos reservados. Aplicativo para dimensionamento de sistemas de esgotamento sanitário (fossa séptica, filtro anaeróbio e sumidouro). Versão 6.6.1.";
   }
 })();
 </script>
